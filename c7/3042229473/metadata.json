@@ -1,0 +1,52 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "c73042229473",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".claude/settings.local.json",
+    ".env.local",
+    "src/app/(admin)/admin/page.tsx",
+    "src/app/(auth)/login/page.tsx",
+    "src/app/(auth)/signup/page.tsx",
+    "src/app/api/admin/route.ts",
+    "src/app/api/contact/route.ts",
+    "src/app/contact/page.tsx",
+    "src/app/globals.css",
+    "src/app/layout.tsx",
+    "src/app/page.tsx",
+    "src/app/track/page.tsx",
+    "src/components/admin-client.tsx",
+    "src/components/dashboard-client.tsx",
+    "src/components/footer.tsx",
+    "src/components/history-empty.tsx",
+    "src/components/history-list.tsx",
+    "src/components/navbar.tsx",
+    "src/components/share-qr-code.tsx",
+    "src/components/sortable-tracking-field.tsx",
+    "src/components/theme-toggle.tsx",
+    "src/components/tracking-form.tsx",
+    "src/components/tracking-result-card.tsx",
+    "src/components/tracking-timeline.tsx",
+    "src/lib/validators.ts",
+    "src/types/index.ts",
+    "supabase/migrations/002_contact_subject.sql"
+  ],
+  "sessions": [
+    {
+      "metadata": "/c7/3042229473/0/metadata.json",
+      "transcript": "/c7/3042229473/0/full.jsonl",
+      "context": "/c7/3042229473/0/context.md",
+      "content_hash": "/c7/3042229473/0/content_hash.txt",
+      "prompt": "/c7/3042229473/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 60,
+    "cache_creation_tokens": 64731,
+    "cache_read_tokens": 7497484,
+    "output_tokens": 22503,
+    "api_call_count": 56
+  }
+}
