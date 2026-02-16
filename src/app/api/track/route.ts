@@ -24,6 +24,9 @@ export async function POST(request: NextRequest) {
       data: { user },
     } = await supabase.auth.getUser();
 
+    let saved = false;
+    let saveError: string | null = null;
+
     if (user) {
       // Check if tracking already exists for this user
       const { data: existing, error: lookupError } = await supabase
@@ -48,6 +51,9 @@ export async function POST(request: NextRequest) {
           .eq("id", existing.id);
         if (updateError) {
           console.error("Failed to update tracking:", updateError.message);
+          saveError = updateError.message;
+        } else {
+          saved = true;
         }
       } else {
         // Insert new tracking with unique public slug
@@ -64,11 +70,14 @@ export async function POST(request: NextRequest) {
         });
         if (insertError) {
           console.error("Failed to insert tracking:", insertError.message);
+          saveError = insertError.message;
+        } else {
+          saved = true;
         }
       }
     }
 
-    return NextResponse.json({ data: result });
+    return NextResponse.json({ data: result, saved, saveError });
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Failed to track parcel";

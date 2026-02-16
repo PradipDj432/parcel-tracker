@@ -1,13 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { TrackingForm } from "@/components/tracking-form";
 import { TrackingResultCard } from "@/components/tracking-result-card";
-import { Search } from "lucide-react";
+import { Search, History } from "lucide-react";
+import { useAuth } from "@/components/auth-provider";
 import type { TrackingResult } from "@/types";
 
 export default function TrackPage() {
   const [results, setResults] = useState<TrackingResult[]>([]);
+  const { user } = useAuth();
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
@@ -31,7 +34,23 @@ export default function TrackPage() {
 
       {results.length > 0 && (
         <div className="mt-8 space-y-4">
-          <h2 className="text-lg font-semibold">Results</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold">Results</h2>
+            {user && (
+              <Link
+                href="/history"
+                className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+              >
+                <History className="h-4 w-4" />
+                View History
+              </Link>
+            )}
+          </div>
+          {user && (
+            <p className="text-xs text-green-600 dark:text-green-400">
+              Tracking results are automatically saved to your history.
+            </p>
+          )}
           {results.map((result) => (
             <TrackingResultCard
               key={result.tracking_number}

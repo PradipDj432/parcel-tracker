@@ -62,14 +62,26 @@ export function AdminClient() {
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<Tab>("overview");
 
+  const [error, setError] = useState<string | null>(null);
+
   const fetchData = useCallback(async () => {
     try {
       const res = await fetch("/api/admin");
       if (res.ok) {
         setData(await res.json());
+      } else {
+        const json = await res.json().catch(() => null);
+        setError(
+          json?.error ||
+            (res.status === 401
+              ? "Not authenticated. Please log in again."
+              : res.status === 403
+                ? "Your account does not have admin privileges. Make sure your profile role is set to 'admin' in the database."
+                : `Failed to load admin data (${res.status})`)
+        );
       }
     } catch {
-      // silently fail
+      setError("Network error. Could not reach the server.");
     } finally {
       setLoading(false);
     }
@@ -82,9 +94,17 @@ export function AdminClient() {
   if (loading) return <AdminSkeleton />;
   if (!data) {
     return (
-      <p className="py-12 text-center text-sm text-zinc-500">
-        Failed to load admin data.
-      </p>
+      <div className="py-12 text-center">
+        <p className="text-sm text-red-600 dark:text-red-400">
+          {error || "Failed to load admin data."}
+        </p>
+        <button
+          onClick={() => { setLoading(true); setError(null); fetchData(); }}
+          className="mt-3 rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+        >
+          Retry
+        </button>
+      </div>
     );
   }
 

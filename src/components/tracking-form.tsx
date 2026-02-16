@@ -20,6 +20,7 @@ import { SortableTrackingField } from "@/components/sortable-tracking-field";
 import { Plus, Search, Loader2 } from "lucide-react";
 import type { TrackingField, TrackingResult } from "@/types";
 import { useAuth } from "@/components/auth-provider";
+import { toast } from "sonner";
 
 const MAX_FIELDS = 6;
 const GUEST_MAX_FIELDS = 1;
@@ -134,6 +135,9 @@ export function TrackingForm({ onResults }: TrackingFormProps) {
     setIsTracking(true);
     const results: TrackingResult[] = [];
 
+    let savedCount = 0;
+    let saveFailCount = 0;
+
     for (const field of validFields) {
       try {
         const res = await fetch("/api/track", {
@@ -147,6 +151,8 @@ export function TrackingForm({ onResults }: TrackingFormProps) {
         const json = await res.json();
         if (json.data) {
           results.push(json.data);
+          if (json.saved) savedCount++;
+          else if (json.saveError) saveFailCount++;
         } else if (json.error) {
           results.push({
             tracking_number: field.trackingNumber,
@@ -169,6 +175,19 @@ export function TrackingForm({ onResults }: TrackingFormProps) {
 
     onResults(results);
     setIsTracking(false);
+
+    if (user && results.length > 0) {
+      if (savedCount > 0) {
+        toast.success(
+          `${savedCount} tracking(s) saved to your history.`
+        );
+      }
+      if (saveFailCount > 0) {
+        toast.error(
+          `Failed to save ${saveFailCount} tracking(s). Check console for details.`
+        );
+      }
+    }
   };
 
   const hasValidFields = fields.some(

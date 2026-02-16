@@ -12,6 +12,9 @@ export default function HistoryPage() {
         <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
           View and manage all your tracked parcels.
         </p>
+        <div className="mt-3 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-700 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300">
+          <strong>Tip:</strong> Click the lock icon next to any tracking to make it public and get a shareable link with QR code. Click the share icon to make it private again.
+        </div>
       </div>
 
       <Suspense fallback={<HistorySkeleton />}>
