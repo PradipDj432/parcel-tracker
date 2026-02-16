@@ -1,0 +1,36 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "b25ad089476d",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/app/(admin)/layout.tsx",
+    "src/app/(protected)/import/page.tsx",
+    "src/app/api/import/route.ts",
+    "src/app/api/og/[id]/route.ts",
+    "src/app/api/track/route.ts",
+    "src/app/track/[id]/page.tsx",
+    "src/components/auth-provider.tsx",
+    "src/components/history-list.tsx",
+    "src/components/import-wizard.tsx",
+    "src/components/share-qr-code.tsx",
+    "src/lib/trackingmore.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/b2/5ad089476d/0/metadata.json",
+      "transcript": "/b2/5ad089476d/0/full.jsonl",
+      "context": "/b2/5ad089476d/0/context.md",
+      "content_hash": "/b2/5ad089476d/0/content_hash.txt",
+      "prompt": "/b2/5ad089476d/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 47,
+    "cache_creation_tokens": 31432,
+    "cache_read_tokens": 3660205,
+    "output_tokens": 8843,
+    "api_call_count": 43
+  }
+}
