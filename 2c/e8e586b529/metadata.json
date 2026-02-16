@@ -1,0 +1,35 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "2ce8e586b529",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/app/api/track/detect/route.ts",
+    "src/app/api/track/route.ts",
+    "src/app/track/page.tsx",
+    "src/components/sortable-tracking-field.tsx",
+    "src/components/status-badge.tsx",
+    "src/components/tracking-form.tsx",
+    "src/components/tracking-result-card.tsx",
+    "src/components/tracking-timeline.tsx",
+    "src/lib/trackingmore.ts",
+    "src/types/index.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/2c/e8e586b529/0/metadata.json",
+      "transcript": "/2c/e8e586b529/0/full.jsonl",
+      "context": "/2c/e8e586b529/0/context.md",
+      "content_hash": "/2c/e8e586b529/0/content_hash.txt",
+      "prompt": "/2c/e8e586b529/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 416,
+    "cache_creation_tokens": 114414,
+    "cache_read_tokens": 3306822,
+    "output_tokens": 9472,
+    "api_call_count": 29
+  }
+}
