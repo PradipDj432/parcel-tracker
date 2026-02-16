@@ -1,0 +1,55 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "789cca281d3c",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".env.local",
+    "e2e/auth.spec.ts",
+    "e2e/fixtures.ts",
+    "package.json",
+    "playwright.config.ts",
+    "src/app/(admin)/admin/page.tsx",
+    "src/app/(auth)/login/page.tsx",
+    "src/app/(auth)/signup/page.tsx",
+    "src/app/api/admin/route.ts",
+    "src/app/api/contact/route.ts",
+    "src/app/contact/page.tsx",
+    "src/app/globals.css",
+    "src/app/layout.tsx",
+    "src/app/page.tsx",
+    "src/app/track/page.tsx",
+    "src/components/admin-client.tsx",
+    "src/components/dashboard-client.tsx",
+    "src/components/footer.tsx",
+    "src/components/history-empty.tsx",
+    "src/components/history-list.tsx",
+    "src/components/navbar.tsx",
+    "src/components/share-qr-code.tsx",
+    "src/components/sortable-tracking-field.tsx",
+    "src/components/theme-toggle.tsx",
+    "src/components/tracking-form.tsx",
+    "src/components/tracking-result-card.tsx",
+    "src/components/tracking-timeline.tsx",
+    "src/lib/validators.ts",
+    "src/types/index.ts",
+    "supabase/migrations/002_contact_subject.sql"
+  ],
+  "sessions": [
+    {
+      "metadata": "/78/9cca281d3c/0/metadata.json",
+      "transcript": "/78/9cca281d3c/0/full.jsonl",
+      "context": "/78/9cca281d3c/0/context.md",
+      "content_hash": "/78/9cca281d3c/0/content_hash.txt",
+      "prompt": "/78/9cca281d3c/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 57,
+    "cache_creation_tokens": 44172,
+    "cache_read_tokens": 4132039,
+    "output_tokens": 12073,
+    "api_call_count": 51
+  }
+}
