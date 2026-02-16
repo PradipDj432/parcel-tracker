@@ -1,0 +1,31 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "8bb614df2b89",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".env.local",
+    "src/app/api/contact/route.ts",
+    "src/app/contact/page.tsx",
+    "src/lib/validators.ts",
+    "src/types/index.ts",
+    "supabase/migrations/002_contact_subject.sql"
+  ],
+  "sessions": [
+    {
+      "metadata": "/8b/b614df2b89/0/metadata.json",
+      "transcript": "/8b/b614df2b89/0/full.jsonl",
+      "context": "/8b/b614df2b89/0/context.md",
+      "content_hash": "/8b/b614df2b89/0/content_hash.txt",
+      "prompt": "/8b/b614df2b89/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 1633,
+    "cache_creation_tokens": 43860,
+    "cache_read_tokens": 1589566,
+    "output_tokens": 12219,
+    "api_call_count": 37
+  }
+}
