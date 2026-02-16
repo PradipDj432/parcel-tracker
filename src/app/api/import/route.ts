@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     const result = await trackParcel(trackingNumber, courierCode);
 
     // Check if already exists
-    const { data: existing } = await supabase
+    const { data: existing, error: lookupError } = await supabase
       .from("trackings")
       .select("id")
       .eq("user_id", user.id)
@@ -36,8 +36,8 @@ export async function POST(request: NextRequest) {
       .eq("courier_code", courierCode)
       .single();
 
-    if (existing) {
-      await supabase
+    if (existing && !lookupError) {
+      const { error: updateError } = await supabase
         .from("trackings")
         .update({
           status: result.status,
@@ -48,8 +48,9 @@ export async function POST(request: NextRequest) {
           label: label || null,
         })
         .eq("id", existing.id);
+      if (updateError) throw new Error(`Update failed: ${updateError.message}`);
     } else {
-      await supabase.from("trackings").insert({
+      const { error: insertError } = await supabase.from("trackings").insert({
         user_id: user.id,
         tracking_number: result.tracking_number,
         courier_code: result.courier_code,
@@ -60,6 +61,7 @@ export async function POST(request: NextRequest) {
         checkpoints: result.checkpoints,
         label: label || null,
       });
+      if (insertError) throw new Error(`Insert failed: ${insertError.message}`);
     }
 
     return NextResponse.json({

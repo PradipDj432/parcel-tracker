@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
 
     if (user) {
       // Check if tracking already exists for this user
-      const { data: existing } = await supabase
+      const { data: existing, error: lookupError } = await supabase
         .from("trackings")
         .select("id")
         .eq("user_id", user.id)
@@ -33,9 +33,9 @@ export async function POST(request: NextRequest) {
         .eq("courier_code", courierCode)
         .single();
 
-      if (existing) {
+      if (existing && !lookupError) {
         // Update existing tracking
-        await supabase
+        const { error: updateError } = await supabase
           .from("trackings")
           .update({
             status: result.status,
@@ -45,9 +45,12 @@ export async function POST(request: NextRequest) {
             checkpoints: result.checkpoints,
           })
           .eq("id", existing.id);
+        if (updateError) {
+          console.error("Failed to update tracking:", updateError.message);
+        }
       } else {
         // Insert new tracking
-        await supabase.from("trackings").insert({
+        const { error: insertError } = await supabase.from("trackings").insert({
           user_id: user.id,
           tracking_number: result.tracking_number,
           courier_code: result.courier_code,
@@ -57,6 +60,9 @@ export async function POST(request: NextRequest) {
           destination: result.destination || null,
           checkpoints: result.checkpoints,
         });
+        if (insertError) {
+          console.error("Failed to insert tracking:", insertError.message);
+        }
       }
     }
 

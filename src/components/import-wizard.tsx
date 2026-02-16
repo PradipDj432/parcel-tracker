@@ -39,8 +39,8 @@ export function ImportWizard() {
       skipEmptyLines: true,
       transformHeader: (h: string) => h.trim().toLowerCase().replace(/\s+/g, "_"),
       complete: (result) => {
-        const parsed: CsvRow[] = result.data.map(
-          (row: Record<string, string>, i: number) => {
+        const parsed: CsvRow[] = (result.data as Record<string, string>[]).map(
+          (row, i) => {
             const trackingNumber = (
               row.tracking_number ||
               row.trackingnumber ||

@@ -1,4 +1,8 @@
-import type { TrackingResult, TrackingCheckpoint, DetectedCourier } from "@/types";
+import type {
+  TrackingResult,
+  TrackingCheckpoint,
+  DetectedCourier,
+} from "@/types";
 
 const API_KEY = process.env.TRACKINGMORE_API_KEY!;
 const BASE_URL = "https://api.trackingmore.com/v4";
@@ -15,7 +19,7 @@ interface TrackingMoreResponse {
 
 interface DetectResponse {
   meta: { code: number; type: string; message: string };
-  data: Array<{ name: string; code: string }>;
+  data: Array<{ courier_name: string; courier_code: string }>;
 }
 
 /**
@@ -23,7 +27,7 @@ interface DetectResponse {
  */
 export async function trackParcel(
   trackingNumber: string,
-  courierCode: string
+  courierCode: string,
 ): Promise<TrackingResult> {
   const res = await fetch(`${BASE_URL}/trackings/create`, {
     method: "POST",
@@ -53,11 +57,11 @@ export async function trackParcel(
  */
 export async function getTracking(
   trackingNumber: string,
-  courierCode: string
+  courierCode: string,
 ): Promise<TrackingResult> {
   const res = await fetch(
     `${BASE_URL}/trackings/${courierCode}/${trackingNumber}`,
-    { method: "GET", headers }
+    { method: "GET", headers },
   );
 
   const json: TrackingMoreResponse = await res.json();
@@ -73,9 +77,9 @@ export async function getTracking(
  * Detect possible couriers for a tracking number.
  */
 export async function detectCourier(
-  trackingNumber: string
+  trackingNumber: string,
 ): Promise<DetectedCourier[]> {
-  const res = await fetch(`${BASE_URL}/trackings/detect`, {
+  const res = await fetch(`${BASE_URL}/couriers/detect`, {
     method: "POST",
     headers,
     body: JSON.stringify({ tracking_number: trackingNumber }),
@@ -83,11 +87,11 @@ export async function detectCourier(
 
   const json: DetectResponse = await res.json();
 
-  if (json.meta.code !== 200) {
+  if (json.meta.code !== 200 || !json.data) {
     return [];
   }
 
-  return json.data.map((c) => ({ name: c.name, code: c.code }));
+  return json.data.map((c) => ({ name: c.courier_name, code: c.courier_code }));
 }
 
 /**
@@ -108,7 +112,9 @@ function normalizeTrackingData(data: Record<string, unknown>): TrackingResult {
       allCheckpoints.push({
         date: (cp.checkpoint_date as string) || (cp.Date as string) || "",
         description:
-          (cp.tracking_detail as string) || (cp.StatusDescription as string) || "",
+          (cp.tracking_detail as string) ||
+          (cp.StatusDescription as string) ||
+          "",
         location: (cp.location as string) || "",
         status: (cp.checkpoint_delivery_status as string) || "",
       });
@@ -120,7 +126,9 @@ function normalizeTrackingData(data: Record<string, unknown>): TrackingResult {
       allCheckpoints.push({
         date: (cp.checkpoint_date as string) || (cp.Date as string) || "",
         description:
-          (cp.tracking_detail as string) || (cp.StatusDescription as string) || "",
+          (cp.tracking_detail as string) ||
+          (cp.StatusDescription as string) ||
+          "",
         location: (cp.location as string) || "",
         status: (cp.checkpoint_delivery_status as string) || "",
       });
@@ -129,7 +137,7 @@ function normalizeTrackingData(data: Record<string, unknown>): TrackingResult {
 
   // Sort checkpoints by date (newest first)
   allCheckpoints.sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
   );
 
   return {
