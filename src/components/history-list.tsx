@@ -4,6 +4,8 @@ import { useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { StatusBadge } from "@/components/status-badge";
 import { HistoryEmpty } from "@/components/history-empty";
+import { useRealtimeTrackings } from "@/lib/use-realtime-trackings";
+import { useAuth } from "@/components/auth-provider";
 import type { Parcel, TrackingStatus } from "@/types";
 import { toast } from "sonner";
 
@@ -32,6 +34,32 @@ export function HistoryList({ initialTrackings }: HistoryListProps) {
   const [refreshingIds, setRefreshingIds] = useState<Set<string>>(new Set());
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const supabase = createClient();
+  const { user } = useAuth();
+
+  // Realtime subscriptions — live updates across tabs/devices
+  useRealtimeTrackings({
+    userId: user?.id,
+    onInsert: useCallback((parcel: Parcel) => {
+      setTrackings((prev) => {
+        if (prev.some((t) => t.id === parcel.id)) return prev;
+        return [parcel, ...prev];
+      });
+      toast.info(`New tracking added: ${parcel.tracking_number}`);
+    }, []),
+    onUpdate: useCallback((parcel: Parcel) => {
+      setTrackings((prev) =>
+        prev.map((t) => (t.id === parcel.id ? parcel : t))
+      );
+    }, []),
+    onDelete: useCallback((id: string) => {
+      setTrackings((prev) => prev.filter((t) => t.id !== id));
+      setSelected((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }, []),
+  });
 
   // Filter
   const filtered = trackings.filter(
