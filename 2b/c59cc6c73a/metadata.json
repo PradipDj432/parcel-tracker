@@ -1,0 +1,29 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "2bc59cc6c73a",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/app/api/dashboard/route.ts",
+    "src/components/charts/courier-chart.tsx",
+    "src/components/charts/volume-chart.tsx",
+    "src/components/dashboard-client.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/2b/c59cc6c73a/0/metadata.json",
+      "transcript": "/2b/c59cc6c73a/0/full.jsonl",
+      "context": "/2b/c59cc6c73a/0/context.md",
+      "content_hash": "/2b/c59cc6c73a/0/content_hash.txt",
+      "prompt": "/2b/c59cc6c73a/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 13,
+    "cache_creation_tokens": 11925,
+    "cache_read_tokens": 1849466,
+    "output_tokens": 6899,
+    "api_call_count": 12
+  }
+}
