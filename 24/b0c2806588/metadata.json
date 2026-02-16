@@ -3,9 +3,12 @@
   "checkpoint_id": "24b0c2806588",
   "strategy": "manual-commit",
   "branch": "main",
-  "checkpoints_count": 0,
+  "checkpoints_count": 1,
   "files_touched": [
+    ".env.example",
     ".env.local",
+    ".gitignore",
+    "README.md",
     "e2e/admin.spec.ts",
     "e2e/auth.spec.ts",
     "e2e/contact.spec.ts",
@@ -47,13 +50,20 @@
       "context": "/24/b0c2806588/0/context.md",
       "content_hash": "/24/b0c2806588/0/content_hash.txt",
       "prompt": "/24/b0c2806588/0/prompt.txt"
+    },
+    {
+      "metadata": "/24/b0c2806588/1/metadata.json",
+      "transcript": "/24/b0c2806588/1/full.jsonl",
+      "context": "/24/b0c2806588/1/context.md",
+      "content_hash": "/24/b0c2806588/1/content_hash.txt",
+      "prompt": "/24/b0c2806588/1/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 3,
-    "cache_creation_tokens": 328,
-    "cache_read_tokens": 52890,
-    "output_tokens": 491,
-    "api_call_count": 3
+    "input_tokens": 27,
+    "cache_creation_tokens": 27844,
+    "cache_read_tokens": 749416,
+    "output_tokens": 6086,
+    "api_call_count": 23
   }
 }
