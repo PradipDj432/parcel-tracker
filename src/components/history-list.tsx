@@ -137,6 +137,31 @@ export function HistoryList({ initialTrackings }: HistoryListProps) {
     []
   );
 
+  // Toggle public/private
+  const togglePublic = async (tracking: Parcel) => {
+    const newValue = !tracking.is_public;
+    const { error } = await supabase
+      .from("trackings")
+      .update({ is_public: newValue })
+      .eq("id", tracking.id);
+    if (error) {
+      toast.error("Failed to update visibility");
+      return;
+    }
+    setTrackings((prev) =>
+      prev.map((t) =>
+        t.id === tracking.id ? { ...t, is_public: newValue } : t
+      )
+    );
+    if (newValue && tracking.public_slug) {
+      const url = `${window.location.origin}/track/${tracking.public_slug}`;
+      await navigator.clipboard.writeText(url);
+      toast.success("Link copied! Tracking is now public.");
+    } else {
+      toast.success("Tracking is now private.");
+    }
+  };
+
   // Delete single
   const deleteTracking = async (id: string) => {
     const { error } = await supabase.from("trackings").delete().eq("id", id);
@@ -256,7 +281,7 @@ export function HistoryList({ initialTrackings }: HistoryListProps) {
         <span className="w-28">Courier</span>
         <span className="w-24">Status</span>
         <span className="w-32">Last Updated</span>
-        <span className="w-20">Actions</span>
+        <span className="w-24">Actions</span>
       </div>
 
       {/* Tracking rows */}
@@ -307,7 +332,44 @@ export function HistoryList({ initialTrackings }: HistoryListProps) {
             </span>
 
             {/* Actions */}
-            <div className="flex w-20 items-center gap-1">
+            <div className="flex w-24 items-center gap-1">
+              <button
+                onClick={() => togglePublic(tracking)}
+                className={`rounded p-1.5 ${
+                  tracking.is_public
+                    ? "text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950"
+                    : "text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
+                }`}
+                title={tracking.is_public ? "Make private" : "Share publicly"}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  {tracking.is_public ? (
+                    <>
+                      <circle cx="18" cy="5" r="3" />
+                      <circle cx="6" cy="12" r="3" />
+                      <circle cx="18" cy="19" r="3" />
+                      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+                    </>
+                  ) : (
+                    <>
+                      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+                      <polyline points="16 6 12 2 8 6" />
+                      <line x1="12" y1="2" x2="12" y2="15" />
+                    </>
+                  )}
+                </svg>
+              </button>
               <button
                 onClick={() => refreshTracking(tracking)}
                 disabled={refreshingIds.has(tracking.id)}

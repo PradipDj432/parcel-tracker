@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { nanoid } from "nanoid";
 import { trackParcel } from "@/lib/trackingmore";
 import { createClient } from "@/lib/supabase/server";
 
@@ -49,7 +50,7 @@ export async function POST(request: NextRequest) {
           console.error("Failed to update tracking:", updateError.message);
         }
       } else {
-        // Insert new tracking
+        // Insert new tracking with unique public slug
         const { error: insertError } = await supabase.from("trackings").insert({
           user_id: user.id,
           tracking_number: result.tracking_number,
@@ -59,6 +60,7 @@ export async function POST(request: NextRequest) {
           origin: result.origin || null,
           destination: result.destination || null,
           checkpoints: result.checkpoints,
+          public_slug: nanoid(10),
         });
         if (insertError) {
           console.error("Failed to insert tracking:", insertError.message);

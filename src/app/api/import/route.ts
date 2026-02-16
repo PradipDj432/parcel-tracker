@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { nanoid } from "nanoid";
 import { trackParcel } from "@/lib/trackingmore";
 import { createClient } from "@/lib/supabase/server";
 
@@ -60,6 +61,7 @@ export async function POST(request: NextRequest) {
         destination: result.destination || null,
         checkpoints: result.checkpoints,
         label: label || null,
+        public_slug: nanoid(10),
       });
       if (insertError) throw new Error(`Insert failed: ${insertError.message}`);
     }
