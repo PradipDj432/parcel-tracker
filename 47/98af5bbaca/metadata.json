@@ -1,0 +1,52 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "4798af5bbaca",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "src/app/(admin)/admin/page.tsx",
+    "src/app/(auth)/login/page.tsx",
+    "src/app/(auth)/signup/page.tsx",
+    "src/app/(protected)/dashboard/page.tsx",
+    "src/app/(protected)/history/page.tsx",
+    "src/app/(protected)/import/page.tsx",
+    "src/app/api/contact/route.ts",
+    "src/app/api/import/route.ts",
+    "src/app/api/og/[id]/route.ts",
+    "src/app/api/track/detect/route.ts",
+    "src/app/api/track/route.ts",
+    "src/app/contact/page.tsx",
+    "src/app/layout.tsx",
+    "src/app/track/[id]/page.tsx",
+    "src/app/track/page.tsx",
+    "src/components/theme-provider.tsx",
+    "src/components/theme-toggle.tsx",
+    "src/lib/supabase/client.ts",
+    "src/lib/supabase/middleware.ts",
+    "src/lib/supabase/server.ts",
+    "src/lib/trackingmore.ts",
+    "src/lib/validators.ts",
+    "src/proxy.ts",
+    "src/types/index.ts",
+    "src/utils/supabase/client.ts",
+    "src/utils/supabase/middleware.ts",
+    "src/utils/supabase/server.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/47/98af5bbaca/0/metadata.json",
+      "transcript": "/47/98af5bbaca/0/full.jsonl",
+      "context": "/47/98af5bbaca/0/context.md",
+      "content_hash": "/47/98af5bbaca/0/content_hash.txt",
+      "prompt": "/47/98af5bbaca/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 29,
+    "cache_creation_tokens": 13551,
+    "cache_read_tokens": 1297883,
+    "output_tokens": 8107,
+    "api_call_count": 23
+  }
+}
