@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
+import { Copy, Check } from "lucide-react";
 
 export function ShareQrCode({ slug }: { slug: string }) {
   const [copied, setCopied] = useState(false);
@@ -30,8 +31,9 @@ export function ShareQrCode({ slug }: { slug: string }) {
           />
           <button
             onClick={copyLink}
-            className="shrink-0 rounded-md bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
           >
+            {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
             {copied ? "Copied!" : "Copy"}
           </button>
         </div>

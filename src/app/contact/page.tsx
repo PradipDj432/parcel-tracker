@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { contactFormSchema } from "@/lib/validators";
+import { CheckCircle2, Send, Loader2 } from "lucide-react";
 import type { ContactFormData } from "@/types";
 
 export default function ContactPage() {
@@ -77,19 +78,7 @@ export default function ContactPage() {
     return (
       <div className="mx-auto max-w-lg px-4 py-16 text-center">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
-          <svg
-            className="h-8 w-8 text-green-600 dark:text-green-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={2}
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M4.5 12.75l6 6 9-13.5"
-            />
-          </svg>
+          <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
         </div>
         <h1 className="text-2xl font-bold tracking-tight">
           Thank you!
@@ -209,8 +198,13 @@ export default function ContactPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-50 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-zinc-800 disabled:opacity-50 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
         >
+          {loading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Send className="h-4 w-4" />
+          )}
           {loading ? "Sending..." : "Send Message"}
         </button>
       </form>

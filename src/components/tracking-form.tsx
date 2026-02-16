@@ -17,6 +17,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { SortableTrackingField } from "@/components/sortable-tracking-field";
+import { Plus, Search, Loader2 } from "lucide-react";
 import type { TrackingField, TrackingResult } from "@/types";
 import { useAuth } from "@/components/auth-provider";
 
@@ -209,9 +210,10 @@ export function TrackingForm({ onResults }: TrackingFormProps) {
           <button
             type="button"
             onClick={addField}
-            className="rounded-lg border border-dashed border-zinc-300 px-4 py-2 text-sm text-zinc-500 hover:border-zinc-400 hover:text-zinc-700 dark:border-zinc-700 dark:hover:border-zinc-600 dark:hover:text-zinc-300"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-zinc-300 px-4 py-2 text-sm text-zinc-500 transition-colors hover:border-zinc-400 hover:text-zinc-700 dark:border-zinc-700 dark:hover:border-zinc-600 dark:hover:text-zinc-300"
           >
-            + Add tracking number
+            <Plus className="h-4 w-4" />
+            Add tracking number
           </button>
         )}
 
@@ -219,8 +221,13 @@ export function TrackingForm({ onResults }: TrackingFormProps) {
           type="button"
           onClick={handleTrack}
           disabled={!hasValidFields || isTracking}
-          className="ml-auto rounded-lg bg-zinc-900 px-6 py-2.5 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-50 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+          className="ml-auto inline-flex items-center gap-2 rounded-full bg-zinc-900 px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-zinc-800 disabled:opacity-50 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
         >
+          {isTracking ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Search className="h-4 w-4" />
+          )}
           {isTracking ? "Tracking..." : "Track"}
         </button>
       </div>

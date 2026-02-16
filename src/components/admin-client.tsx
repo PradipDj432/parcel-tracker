@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { StatusBadge } from "@/components/status-badge";
+import { ChevronDown, Users, Package, MessageSquare } from "lucide-react";
 import type { TrackingStatus } from "@/types";
 
 // ---- Types ----
@@ -508,22 +509,11 @@ function ContactsTab({ contacts }: { contacts: ContactSubmission[] }) {
                     minute: "2-digit",
                   })}
                 </span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className={`shrink-0 text-zinc-400 transition-transform ${
+                <ChevronDown
+                  className={`h-3.5 w-3.5 shrink-0 text-zinc-400 transition-transform duration-200 ${
                     expanded.has(c.id) ? "rotate-180" : ""
                   }`}
-                >
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
+                />
               </button>
               {expanded.has(c.id) && (
                 <div className="border-t border-zinc-200 px-4 py-3 dark:border-zinc-800">

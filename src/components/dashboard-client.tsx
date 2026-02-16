@@ -8,6 +8,7 @@ import { VolumeChart } from "@/components/charts/volume-chart";
 import { CourierChart } from "@/components/charts/courier-chart";
 import Link from "next/link";
 import { toast } from "sonner";
+import { RefreshCw, ArrowRight, Package, TrendingUp, CheckCircle2, Clock } from "lucide-react";
 import type { Parcel, TrackingStatus } from "@/types";
 
 interface DashboardStats {
@@ -157,9 +158,10 @@ export function DashboardClient({ initialTrackings }: DashboardClientProps) {
           <h2 className="text-lg font-semibold">In-Transit Parcels</h2>
           <Link
             href="/history"
-            className="text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+            className="flex items-center gap-1 text-sm text-zinc-500 transition-colors hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
           >
             View all history
+            <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
 
@@ -193,27 +195,14 @@ export function DashboardClient({ initialTrackings }: DashboardClientProps) {
                 <button
                   onClick={() => refreshTracking(tracking)}
                   disabled={refreshingIds.has(tracking.id)}
-                  className="rounded p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 disabled:opacity-50 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
+                  className="rounded p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 disabled:opacity-50 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
                   title="Refresh"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className={
+                  <RefreshCw
+                    className={`h-3.5 w-3.5 ${
                       refreshingIds.has(tracking.id) ? "animate-spin" : ""
-                    }
-                  >
-                    <polyline points="23 4 23 10 17 10" />
-                    <polyline points="1 20 1 14 7 14" />
-                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-                  </svg>
+                    }`}
+                  />
                 </button>
               </div>
             ))}

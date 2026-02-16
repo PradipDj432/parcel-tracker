@@ -1,4 +1,5 @@
 import type { TrackingCheckpoint } from "@/types";
+import { Clock, MapPin } from "lucide-react";
 
 export function TrackingTimeline({
   checkpoints,
@@ -7,9 +8,12 @@ export function TrackingTimeline({
 }) {
   if (!checkpoints.length) {
     return (
-      <p className="py-4 text-center text-sm text-zinc-500 dark:text-zinc-400">
-        No tracking events available yet.
-      </p>
+      <div className="flex flex-col items-center rounded-lg border border-dashed border-zinc-200 py-8 dark:border-zinc-700">
+        <Clock className="h-6 w-6 text-zinc-300 dark:text-zinc-600" />
+        <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+          No tracking events available yet.
+        </p>
+      </div>
     );
   }
 
@@ -39,7 +43,8 @@ export function TrackingTimeline({
             </p>
             <div className="mt-0.5 flex flex-wrap gap-x-3 text-xs text-zinc-500 dark:text-zinc-500">
               {cp.date && (
-                <time>
+                <time className="flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
                   {new Date(cp.date).toLocaleString("en-US", {
                     month: "short",
                     day: "numeric",
@@ -49,7 +54,12 @@ export function TrackingTimeline({
                   })}
                 </time>
               )}
-              {cp.location && <span>{cp.location}</span>}
+              {cp.location && (
+                <span className="flex items-center gap-1">
+                  <MapPin className="h-3 w-3" />
+                  {cp.location}
+                </span>
+              )}
             </div>
           </div>
         </div>

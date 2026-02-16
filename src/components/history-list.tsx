@@ -8,6 +8,7 @@ import { useRealtimeTrackings } from "@/lib/use-realtime-trackings";
 import { useAuth } from "@/components/auth-provider";
 import type { Parcel, TrackingStatus } from "@/types";
 import { toast } from "sonner";
+import { Share2, Lock, RefreshCw, Trash2 } from "lucide-react";
 
 const STATUS_OPTIONS: { value: string; label: string }[] = [
   { value: "all", label: "All" },
@@ -335,85 +336,37 @@ export function HistoryList({ initialTrackings }: HistoryListProps) {
             <div className="flex w-24 items-center gap-1">
               <button
                 onClick={() => togglePublic(tracking)}
-                className={`rounded p-1.5 ${
+                className={`rounded p-1.5 transition-colors ${
                   tracking.is_public
                     ? "text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950"
                     : "text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
                 }`}
                 title={tracking.is_public ? "Make private" : "Share publicly"}
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  {tracking.is_public ? (
-                    <>
-                      <circle cx="18" cy="5" r="3" />
-                      <circle cx="6" cy="12" r="3" />
-                      <circle cx="18" cy="19" r="3" />
-                      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-                      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-                    </>
-                  ) : (
-                    <>
-                      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-                      <polyline points="16 6 12 2 8 6" />
-                      <line x1="12" y1="2" x2="12" y2="15" />
-                    </>
-                  )}
-                </svg>
+                {tracking.is_public ? (
+                  <Share2 className="h-3.5 w-3.5" />
+                ) : (
+                  <Lock className="h-3.5 w-3.5" />
+                )}
               </button>
               <button
                 onClick={() => refreshTracking(tracking)}
                 disabled={refreshingIds.has(tracking.id)}
-                className="rounded p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 disabled:opacity-50 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
+                className="rounded p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 disabled:opacity-50 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
                 title="Refresh"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className={
+                <RefreshCw
+                  className={`h-3.5 w-3.5 ${
                     refreshingIds.has(tracking.id) ? "animate-spin" : ""
-                  }
-                >
-                  <polyline points="23 4 23 10 17 10" />
-                  <polyline points="1 20 1 14 7 14" />
-                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-                </svg>
+                  }`}
+                />
               </button>
               <button
                 onClick={() => deleteTracking(tracking.id)}
-                className="rounded p-1.5 text-zinc-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+                className="rounded p-1.5 text-zinc-400 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
                 title="Delete"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polyline points="3 6 5 6 21 6" />
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                </svg>
+                <Trash2 className="h-3.5 w-3.5" />
               </button>
             </div>
           </div>

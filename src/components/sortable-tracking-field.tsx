@@ -2,6 +2,7 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { GripVertical, X, Loader2 } from "lucide-react";
 import type { TrackingField } from "@/types";
 
 interface Props {
@@ -42,35 +43,22 @@ export function SortableTrackingField({
     <div
       ref={setNodeRef}
       style={style}
-      className="flex items-start gap-2 rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-950"
+      className="flex items-start gap-2 rounded-xl border border-zinc-200 bg-white p-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-950"
     >
       {/* Drag handle */}
       {canDrag && (
         <button
           {...attributes}
           {...listeners}
-          className="mt-2 cursor-grab touch-none text-zinc-400 hover:text-zinc-600 active:cursor-grabbing dark:hover:text-zinc-300"
+          className="mt-2 cursor-grab touch-none text-zinc-400 transition-colors hover:text-zinc-600 active:cursor-grabbing dark:hover:text-zinc-300"
           aria-label="Drag to reorder"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-          >
-            <circle cx="9" cy="6" r="1.5" />
-            <circle cx="15" cy="6" r="1.5" />
-            <circle cx="9" cy="12" r="1.5" />
-            <circle cx="15" cy="12" r="1.5" />
-            <circle cx="9" cy="18" r="1.5" />
-            <circle cx="15" cy="18" r="1.5" />
-          </svg>
+          <GripVertical className="h-4 w-4" />
         </button>
       )}
 
       {/* Field number */}
-      <span className="mt-2 text-xs font-medium text-zinc-400">
+      <span className="mt-2.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-[10px] font-semibold text-zinc-500 dark:bg-zinc-800">
         {index + 1}
       </span>
 
@@ -84,11 +72,12 @@ export function SortableTrackingField({
               onTrackingNumberChange(field.id, e.target.value)
             }
             placeholder="Enter tracking number"
-            className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+            className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm transition-colors focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
           />
           {field.isDetecting && (
-            <span className="absolute right-3 top-2.5 text-xs text-zinc-400">
-              Detecting...
+            <span className="absolute right-3 top-2.5 flex items-center gap-1 text-xs text-zinc-400">
+              <Loader2 className="h-3 w-3 animate-spin" />
+              Detecting
             </span>
           )}
         </div>
@@ -102,7 +91,7 @@ export function SortableTrackingField({
             );
             onCourierChange(field.id, e.target.value, selected?.name);
           }}
-          className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 sm:w-48 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+          className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm transition-colors focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 sm:w-48 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
         >
           <option value="">
             {field.isDetecting
@@ -123,23 +112,10 @@ export function SortableTrackingField({
       {canRemove && (
         <button
           onClick={() => onRemove(field.id)}
-          className="mt-1.5 rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
+          className="mt-1.5 rounded-md p-1.5 text-zinc-400 transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950 dark:hover:text-red-400"
           aria-label="Remove"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
+          <X className="h-4 w-4" />
         </button>
       )}
     </div>
