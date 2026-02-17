@@ -1,0 +1,43 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "9f050173a57d",
+  "session_id": "fa20aaae-33f6-4ee1-abc9-71c9ee15260c",
+  "strategy": "manual-commit",
+  "created_at": "2026-02-17T08:59:19.633981025Z",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".env.example",
+    ".env.local",
+    "README.md",
+    "src/app/(auth)/login/page.tsx",
+    "src/app/api/auth/signout/route.ts",
+    "src/app/api/contact/route.ts",
+    "src/components/auth-provider.tsx",
+    "src/components/navbar.tsx",
+    "src/lib/trackingmore.ts",
+    "src/middleware.ts",
+    "supabase/migrations/003_fix_rls_recursion.sql"
+  ],
+  "agent": "Claude Code",
+  "transcript_identifier_at_start": "89b9286d-618b-472b-a6d7-a1068f94ac6e",
+  "checkpoint_transcript_start": 614,
+  "transcript_lines_at_start": 614,
+  "token_usage": {
+    "input_tokens": 57,
+    "cache_creation_tokens": 54388,
+    "cache_read_tokens": 7108306,
+    "output_tokens": 12032,
+    "api_call_count": 51
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-02-17T08:59:19.013047274Z",
+    "agent_lines": 0,
+    "human_added": 0,
+    "human_modified": 83,
+    "human_removed": 5,
+    "total_committed": 11,
+    "agent_percentage": 0
+  },
+  "transcript_path": ".claude/projects/-home-dhitech-projects-parcel-tracker/fa20aaae-33f6-4ee1-abc9-71c9ee15260c.jsonl"
+}

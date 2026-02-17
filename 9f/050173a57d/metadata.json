@@ -1,0 +1,36 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "9f050173a57d",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".env.example",
+    ".env.local",
+    "README.md",
+    "src/app/(auth)/login/page.tsx",
+    "src/app/api/auth/signout/route.ts",
+    "src/app/api/contact/route.ts",
+    "src/components/auth-provider.tsx",
+    "src/components/navbar.tsx",
+    "src/lib/trackingmore.ts",
+    "src/middleware.ts",
+    "supabase/migrations/003_fix_rls_recursion.sql"
+  ],
+  "sessions": [
+    {
+      "metadata": "/9f/050173a57d/0/metadata.json",
+      "transcript": "/9f/050173a57d/0/full.jsonl",
+      "context": "/9f/050173a57d/0/context.md",
+      "content_hash": "/9f/050173a57d/0/content_hash.txt",
+      "prompt": "/9f/050173a57d/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 57,
+    "cache_creation_tokens": 54388,
+    "cache_read_tokens": 7108306,
+    "output_tokens": 12032,
+    "api_call_count": 51
+  }
+}
