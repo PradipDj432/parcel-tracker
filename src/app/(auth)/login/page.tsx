@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
 import { LogIn, Loader2 } from "lucide-react";
@@ -11,7 +10,6 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
   const supabase = createClient();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -30,8 +28,8 @@ export default function LoginPage() {
     }
 
     toast.success("Logged in successfully!");
-    router.refresh();
-    router.push("/dashboard");
+    // Hard navigate to ensure proxy middleware runs and server state is fresh
+    window.location.href = "/dashboard";
   };
 
   return (
