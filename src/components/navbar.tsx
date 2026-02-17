@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useState } from "react";
@@ -27,14 +27,11 @@ const navLinkActive =
 
 export function Navbar() {
   const { user, profile, isAdmin, isLoading, signOut } = useAuth();
-  const router = useRouter();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
-    router.refresh();
-    router.push("/");
   };
 
   const isActive = (href: string) => pathname === href;

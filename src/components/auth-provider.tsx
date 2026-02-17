@@ -1,7 +1,8 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useRef } from "react";
+import { createContext, useContext, useEffect, useState, useRef, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 
 interface Profile {
@@ -31,25 +32,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const supabase = createClient();
+  const supabaseRef = useRef(createClient());
   const profileCache = useRef<string | null>(null);
+  const router = useRouter();
+
+  const fetchProfile = useCallback(async (userId: string, retries = 2): Promise<void> => {
+    // Skip if we already have this profile cached
+    if (profileCache.current === userId) return;
+
+    const { data, error } = await supabaseRef.current
+      .from("profiles")
+      .select("*")
+      .eq("id", userId)
+      .single();
+
+    if (error || !data) {
+      if (retries > 0) {
+        await new Promise((r) => setTimeout(r, 500));
+        return fetchProfile(userId, retries - 1);
+      }
+      setProfile(null);
+      profileCache.current = null;
+      return;
+    }
+    setProfile(data);
+    profileCache.current = userId;
+  }, []);
 
   useEffect(() => {
     let mounted = true;
+    const supabase = supabaseRef.current;
 
-    // 1. Read session from cookies immediately (no API call).
-    //    This gives us the user even if the access token is expired,
-    //    so the navbar renders correctly right away.
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!mounted) return;
-      if (session?.user) {
-        setUser(session.user);
-        fetchProfile(session.user.id);
-      }
-    });
-
-    // 2. Listen for auth state changes (INITIAL_SESSION, TOKEN_REFRESHED,
-    //    SIGNED_IN, SIGNED_OUT). This handles token refresh and login/logout.
+    // Listen for auth state changes. This fires INITIAL_SESSION on mount,
+    // TOKEN_REFRESHED when the token is refreshed, and SIGNED_IN/SIGNED_OUT.
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -68,55 +83,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (currentUser) {
         setUser(currentUser);
         await fetchProfile(currentUser.id);
+      } else if (event === "INITIAL_SESSION") {
+        // No session at all on initial load — user is guest
+        setUser(null);
+        setProfile(null);
+        profileCache.current = null;
       }
-      // Only clear user if explicitly signed out (handled above).
-      // Don't clear on INITIAL_SESSION with null — getSession() above
-      // may have already set the user from cookies.
 
-      setIsLoading(false);
+      if (mounted) setIsLoading(false);
     });
 
-    // 3. Safety net: if nothing resolved within 2 seconds, stop loading
+    // Safety net: if onAuthStateChange never fires within 3 seconds, stop loading
     const timeout = setTimeout(() => {
       if (mounted) setIsLoading(false);
-    }, 2000);
+    }, 3000);
 
     return () => {
       mounted = false;
       subscription.unsubscribe();
       clearTimeout(timeout);
     };
-  }, []);
+  }, [fetchProfile]);
 
-  const fetchProfile = async (userId: string, retries = 2): Promise<void> => {
-    // Skip if we already have this profile cached
-    if (profileCache.current === userId && profile) return;
-
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
-    if (error || !data) {
-      if (retries > 0) {
-        await new Promise((r) => setTimeout(r, 500));
-        return fetchProfile(userId, retries - 1);
-      }
-      setProfile(null);
-      profileCache.current = null;
-      return;
-    }
-    setProfile(data);
-    profileCache.current = userId;
-  };
-
-  const signOut = async () => {
-    await supabase.auth.signOut();
+  const signOut = useCallback(async () => {
+    // Clear client state first so UI updates immediately
     setUser(null);
     setProfile(null);
     profileCache.current = null;
+
+    // Sign out from Supabase (clears client-side tokens)
+    await supabaseRef.current.auth.signOut();
+
+    // Clear server-side session cookies
     await fetch("/api/auth/signout", { method: "POST" });
-  };
+
+    // Refresh the router to clear any cached server components
+    router.refresh();
+    router.push("/");
+  }, [router]);
 
   return (
     <AuthContext.Provider
