@@ -1,0 +1,43 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "9d67bb10f721",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".env.example",
+    ".env.local",
+    "DEVELOPMENT_LOG.md",
+    "README.md",
+    "e2e/admin.spec.ts",
+    "e2e/fixtures.ts",
+    "e2e/import.spec.ts",
+    "e2e/navigation.spec.ts",
+    "e2e/shareable.spec.ts",
+    "e2e/tracking.spec.ts",
+    "src/app/(auth)/login/page.tsx",
+    "src/app/api/auth/signout/route.ts",
+    "src/app/api/contact/route.ts",
+    "src/components/auth-provider.tsx",
+    "src/components/navbar.tsx",
+    "src/lib/trackingmore.ts",
+    "src/middleware.ts",
+    "supabase/migrations/003_fix_rls_recursion.sql"
+  ],
+  "sessions": [
+    {
+      "metadata": "/9d/67bb10f721/0/metadata.json",
+      "transcript": "/9d/67bb10f721/0/full.jsonl",
+      "context": "/9d/67bb10f721/0/context.md",
+      "content_hash": "/9d/67bb10f721/0/content_hash.txt",
+      "prompt": "/9d/67bb10f721/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 26,
+    "cache_creation_tokens": 28368,
+    "cache_read_tokens": 785738,
+    "output_tokens": 1592,
+    "api_call_count": 21
+  }
+}
