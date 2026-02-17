@@ -1,0 +1,35 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "5761726f9d84",
+  "session_id": "fa20aaae-33f6-4ee1-abc9-71c9ee15260c",
+  "strategy": "manual-commit",
+  "created_at": "2026-02-17T08:28:43.950444973Z",
+  "branch": "main",
+  "checkpoints_count": 4,
+  "files_touched": [
+    ".env.example",
+    ".env.local",
+    "src/app/api/contact/route.ts",
+    "src/lib/trackingmore.ts",
+    "supabase/migrations/003_fix_rls_recursion.sql"
+  ],
+  "agent": "Claude Code",
+  "transcript_identifier_at_start": "1b2f883a-f688-433a-a973-550c770aa440",
+  "token_usage": {
+    "input_tokens": 263,
+    "cache_creation_tokens": 134532,
+    "cache_read_tokens": 8453752,
+    "output_tokens": 24115,
+    "api_call_count": 120
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-02-17T08:28:43.653561588Z",
+    "agent_lines": 114,
+    "human_added": 33,
+    "human_modified": 15,
+    "human_removed": 0,
+    "total_committed": 162,
+    "agent_percentage": 70.37037037037037
+  },
+  "transcript_path": ".claude/projects/-home-dhitech-projects-parcel-tracker/fa20aaae-33f6-4ee1-abc9-71c9ee15260c.jsonl"
+}
