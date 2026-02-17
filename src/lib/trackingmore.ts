@@ -23,13 +23,33 @@ interface DetectResponse {
 }
 
 /**
+ * Delete a tracking from TrackingMore so it can be re-created.
+ */
+async function deleteTracking(
+  trackingNumber: string,
+  courierCode: string,
+): Promise<void> {
+  try {
+    await fetch(`${BASE_URL}/trackings`, {
+      method: "DELETE",
+      headers,
+      body: JSON.stringify([{ tracking_number: trackingNumber, courier_code: courierCode }]),
+    });
+  } catch {
+    // Best-effort deletion — ignore errors
+  }
+}
+
+/**
  * Create a tracking and get real-time results (V4 "create & get").
+ * If the tracking already exists (4016/4101), delete it and re-create
+ * to get fresh data. V4 has no separate "get" endpoint.
  */
 export async function trackParcel(
   trackingNumber: string,
   courierCode: string,
 ): Promise<TrackingResult> {
-  const res = await fetch(`${BASE_URL}/trackings/create`, {
+  let res = await fetch(`${BASE_URL}/trackings/create`, {
     method: "POST",
     headers,
     body: JSON.stringify({
@@ -38,36 +58,40 @@ export async function trackParcel(
     }),
   });
 
-  const json: TrackingMoreResponse = await res.json();
+  let json: TrackingMoreResponse = await res.json();
 
-  // If tracking already exists, try to get it instead
-  if (json.meta.code === 4016) {
-    return getTracking(trackingNumber, courierCode);
+  // If tracking already exists, delete it and re-create for fresh data
+  if (json.meta.code === 4016 || json.meta.code === 4101) {
+    await deleteTracking(trackingNumber, courierCode);
+
+    // Small delay to let the deletion propagate
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    res = await fetch(`${BASE_URL}/trackings/create`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        tracking_number: trackingNumber,
+        courier_code: courierCode,
+      }),
+    });
+
+    json = await res.json();
+
+    // If it STILL says "already exists", return minimal data
+    // (TrackingMore sometimes caches — not a fatal error)
+    if (json.meta.code === 4016 || json.meta.code === 4101) {
+      return {
+        tracking_number: trackingNumber,
+        courier_code: courierCode,
+        status: "pending",
+        checkpoints: [],
+      };
+    }
   }
 
   if (json.meta.code !== 200) {
     throw new Error(json.meta.message || "Failed to track parcel");
-  }
-
-  return normalizeTrackingData(json.data);
-}
-
-/**
- * Get existing tracking results.
- */
-export async function getTracking(
-  trackingNumber: string,
-  courierCode: string,
-): Promise<TrackingResult> {
-  const res = await fetch(
-    `${BASE_URL}/trackings/${courierCode}/${trackingNumber}`,
-    { method: "GET", headers },
-  );
-
-  const json: TrackingMoreResponse = await res.json();
-
-  if (json.meta.code !== 200) {
-    throw new Error(json.meta.message || "Failed to get tracking");
   }
 
   return normalizeTrackingData(json.data);

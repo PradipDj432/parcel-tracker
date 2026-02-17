@@ -80,9 +80,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
+    // Clear client-side auth state
     await supabase.auth.signOut();
     setUser(null);
     setProfile(null);
+    // Clear server-side session cookies
+    await fetch("/api/auth/signout", { method: "POST" });
   };
 
   return (

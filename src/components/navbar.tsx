@@ -33,8 +33,8 @@ export function Navbar() {
 
   const handleSignOut = async () => {
     await signOut();
-    router.push("/");
     router.refresh();
+    router.push("/");
   };
 
   const isActive = (href: string) => pathname === href;

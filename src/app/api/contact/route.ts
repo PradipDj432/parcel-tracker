@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import nodemailer from "nodemailer";
 import { contactFormSchema } from "@/lib/validators";
 
 const RATE_LIMIT_MAX = 3;
@@ -84,38 +83,36 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Send email notification via SMTP (if configured)
-    if (
-      process.env.SMTP_HOST &&
-      process.env.SMTP_USER &&
-      process.env.CONTACT_EMAIL
-    ) {
+    // Send email notification via Resend API (if configured)
+    if (process.env.SMTP_PASS && process.env.CONTACT_EMAIL) {
       try {
-        const transporter = nodemailer.createTransport({
-          host: process.env.SMTP_HOST,
-          port: Number(process.env.SMTP_PORT) || 587,
-          secure: Number(process.env.SMTP_PORT) === 465,
-          auth: {
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASS,
+        const fromAddress = process.env.SMTP_FROM || "onboarding@resend.dev";
+        const res = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${process.env.SMTP_PASS}`,
+            "Content-Type": "application/json",
           },
+          body: JSON.stringify({
+            from: `Parcel Tracker <${fromAddress}>`,
+            to: process.env.CONTACT_EMAIL,
+            reply_to: email,
+            subject: `Contact Form: ${subject}`,
+            html: `
+              <h2>New Contact Form Submission</h2>
+              <p><strong>Name:</strong> ${escapeHtml(name)}</p>
+              <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+              <p><strong>Subject:</strong> ${escapeHtml(subject)}</p>
+              <hr />
+              <p>${escapeHtml(message).replace(/\n/g, "<br />")}</p>
+            `,
+          }),
         });
 
-        await transporter.sendMail({
-          from: `"Parcel Tracker" <${process.env.SMTP_USER}>`,
-          to: process.env.CONTACT_EMAIL,
-          replyTo: email,
-          subject: `Contact Form: ${subject}`,
-          text: `Name: ${name}\nEmail: ${email}\nSubject: ${subject}\n\nMessage:\n${message}`,
-          html: `
-            <h2>New Contact Form Submission</h2>
-            <p><strong>Name:</strong> ${escapeHtml(name)}</p>
-            <p><strong>Email:</strong> ${escapeHtml(email)}</p>
-            <p><strong>Subject:</strong> ${escapeHtml(subject)}</p>
-            <hr />
-            <p>${escapeHtml(message).replace(/\n/g, "<br />")}</p>
-          `,
-        });
+        if (!res.ok) {
+          const errBody = await res.text();
+          console.error("Failed to send email via Resend:", errBody);
+        }
       } catch (emailError) {
         // Log but don't fail — the submission is already saved
         console.error("Failed to send email notification:", emailError);

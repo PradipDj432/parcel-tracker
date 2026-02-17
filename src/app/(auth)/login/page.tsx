@@ -30,8 +30,8 @@ export default function LoginPage() {
     }
 
     toast.success("Logged in successfully!");
-    router.push("/dashboard");
     router.refresh();
+    router.push("/dashboard");
   };
 
   return (
