@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { nanoid } from "nanoid";
 import { trackParcel } from "@/lib/trackingmore";
 import { createClient } from "@/lib/supabase/server";
+import { createClient as createServiceClient } from "@supabase/supabase-js";
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,7 +19,7 @@ export async function POST(request: NextRequest) {
     // Call TrackingMore API (secrets stay server-side)
     const result = await trackParcel(trackingNumber, courierCode);
 
-    // If user is logged in, save to database
+    // Check if user is logged in
     const supabase = await createClient();
     const {
       data: { user },
@@ -28,18 +29,25 @@ export async function POST(request: NextRequest) {
     let saveError: string | null = null;
 
     if (user) {
+      // Use service role client to bypass RLS for reliable writes
+      // (user identity already verified via getUser above)
+      const admin = createServiceClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      );
+
       // Check if tracking already exists for this user
-      const { data: existing, error: lookupError } = await supabase
+      const { data: existing } = await admin
         .from("trackings")
         .select("id")
         .eq("user_id", user.id)
         .eq("tracking_number", trackingNumber)
         .eq("courier_code", courierCode)
-        .single();
+        .maybeSingle();
 
-      if (existing && !lookupError) {
+      if (existing) {
         // Update existing tracking
-        const { error: updateError } = await supabase
+        const { error: updateError } = await admin
           .from("trackings")
           .update({
             status: result.status,
@@ -57,7 +65,7 @@ export async function POST(request: NextRequest) {
         }
       } else {
         // Insert new tracking with unique public slug
-        const { error: insertError } = await supabase.from("trackings").insert({
+        const { error: insertError } = await admin.from("trackings").insert({
           user_id: user.id,
           tracking_number: result.tracking_number,
           courier_code: result.courier_code,

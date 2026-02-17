@@ -1,8 +1,16 @@
 @import "tailwindcss";
 
+/* Use class-based dark mode so the toggle works (next-themes adds .dark to <html>) */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
+}
+
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 @theme inline {
@@ -14,13 +22,6 @@
   --animate-slide-up: slide-up 0.5s ease-out both;
   --animate-slide-down: slide-down 0.3s ease-out both;
   --animate-scale-in: scale-in 0.3s ease-out both;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {

@@ -16,6 +16,7 @@ import {
   LogOut,
   Menu,
   X,
+  UserCircle,
 } from "lucide-react";
 
 const navLink =
@@ -91,9 +92,16 @@ export function Navbar() {
               <>
                 {user ? (
                   <div className="flex items-center gap-1.5">
-                    <span className="max-w-[120px] truncate text-xs text-zinc-500 dark:text-zinc-400">
-                      {profile?.email}
-                    </span>
+                    <Link
+                      href="/profile"
+                      className="flex items-center gap-1 rounded-md px-2 py-1.5 text-xs text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+                      title="View profile"
+                    >
+                      <UserCircle className="h-4 w-4" />
+                      <span className="max-w-[100px] truncate">
+                        {profile?.email}
+                      </span>
+                    </Link>
                     <button
                       onClick={handleSignOut}
                       className="rounded-md p-2 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
@@ -174,9 +182,14 @@ export function Navbar() {
                 <>
                   {user ? (
                     <>
-                      <p className="px-3 py-1 text-xs text-zinc-500 dark:text-zinc-400">
+                      <Link
+                        href="/profile"
+                        onClick={() => setMobileOpen(false)}
+                        className="flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                      >
+                        <UserCircle className="h-4 w-4" />
                         {profile?.email}
-                      </p>
+                      </Link>
                       <button
                         onClick={() => {
                           setMobileOpen(false);

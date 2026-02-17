@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { nanoid } from "nanoid";
 import { trackParcel } from "@/lib/trackingmore";
 import { createClient } from "@/lib/supabase/server";
+import { createClient as createServiceClient } from "@supabase/supabase-js";
 
 // Process a single tracking item from CSV import
 export async function POST(request: NextRequest) {
@@ -28,17 +29,23 @@ export async function POST(request: NextRequest) {
     // Call TrackingMore API
     const result = await trackParcel(trackingNumber, courierCode);
 
+    // Use service role client for reliable DB writes
+    const admin = createServiceClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+
     // Check if already exists
-    const { data: existing, error: lookupError } = await supabase
+    const { data: existing } = await admin
       .from("trackings")
       .select("id")
       .eq("user_id", user.id)
       .eq("tracking_number", trackingNumber)
       .eq("courier_code", courierCode)
-      .single();
+      .maybeSingle();
 
-    if (existing && !lookupError) {
-      const { error: updateError } = await supabase
+    if (existing) {
+      const { error: updateError } = await admin
         .from("trackings")
         .update({
           status: result.status,
@@ -51,7 +58,7 @@ export async function POST(request: NextRequest) {
         .eq("id", existing.id);
       if (updateError) throw new Error(`Update failed: ${updateError.message}`);
     } else {
-      const { error: insertError } = await supabase.from("trackings").insert({
+      const { error: insertError } = await admin.from("trackings").insert({
         user_id: user.id,
         tracking_number: result.tracking_number,
         courier_code: result.courier_code,
