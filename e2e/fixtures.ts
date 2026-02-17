@@ -27,6 +27,8 @@ export const MOCK_TRACKING_RESULT = {
       },
     ],
   },
+  saved: true,
+  saveError: null,
 };
 
 export const MOCK_DETECT_RESULT = {
@@ -50,6 +52,7 @@ export const MOCK_IMPORT_RESULT = {
 
 /**
  * Mock all external API routes so tests don't hit real services.
+ * Uses exact URL path matching to avoid intercepting page navigations.
  */
 export async function mockApiRoutes(page: Page) {
   // Mock courier detection
@@ -61,9 +64,10 @@ export async function mockApiRoutes(page: Page) {
     })
   );
 
-  // Mock tracking API
+  // Mock tracking API — only intercept POST to /api/track
   await page.route("**/api/track", (route) => {
-    if (route.request().method() === "POST") {
+    const url = new URL(route.request().url());
+    if (route.request().method() === "POST" && url.pathname === "/api/track") {
       return route.fulfill({
         status: 200,
         contentType: "application/json",
@@ -94,7 +98,6 @@ export async function mockApiRoutes(page: Page) {
 
 /**
  * Login with email and password using the actual Supabase auth.
- * Uses the test admin account created earlier.
  */
 export async function loginAs(
   page: Page,
@@ -107,11 +110,18 @@ export async function loginAs(
   await page.click('button[type="submit"]');
   // Wait for redirect to dashboard
   await page.waitForURL("**/dashboard", { timeout: 10_000 });
+  // Wait for auth state to fully load (profile fetch)
+  await page.waitForTimeout(1000);
 }
 
 // Test accounts (created in Supabase)
 export const TEST_ADMIN = {
   email: "pradipadmin@yopmail.com",
+  password: "Abc@12345",
+};
+
+export const TEST_USER = {
+  email: "pradip1231@yopmail.com",
   password: "Abc@12345",
 };
 

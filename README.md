@@ -11,7 +11,7 @@ A full-featured parcel tracking web application built with Next.js 16, React 19,
 - **Dashboard** — Server-side computed stats, tracking volume charts, and courier breakdowns
 - **Bulk CSV Import** — Upload a CSV of tracking numbers with validation, review, and progress tracking
 - **Shareable Pages** — Public tracking pages with QR codes and Open Graph images for social sharing
-- **Contact Form** — Rate-limited contact form with server-side validation and optional SMTP delivery
+- **Contact Form** — Rate-limited contact form with server-side validation and email delivery via Resend
 - **Admin Panel** — View all users, tracking activity, and usage statistics
 - **Dark/Light Mode** — Theme toggle persisted to localStorage
 - **Responsive Design** — Mobile, tablet, and desktop layouts
@@ -30,7 +30,7 @@ A full-featured parcel tracking web application built with Next.js 16, React 19,
 | CSV Parsing | [PapaParse](https://www.papaparse.com) |
 | QR Codes | [qrcode.react](https://github.com/zpao/qrcode.react) |
 | Validation | [Zod](https://zod.dev) |
-| Email | [Nodemailer](https://nodemailer.com) |
+| Email | [Resend](https://resend.com) |
 | Testing | [Playwright](https://playwright.dev) |
 
 ## Access Levels
@@ -54,7 +54,7 @@ A full-featured parcel tracking web application built with Next.js 16, React 19,
 ### 1. Clone and Install
 
 ```bash
-git clone https://github.com/<your-username>/parcel-tracker.git
+git clone https://github.com/PradipDj432/parcel-tracker.git
 cd parcel-tracker
 npm install
 ```
@@ -75,6 +75,7 @@ Run the SQL migrations in your Supabase SQL Editor in order:
 
 1. **`supabase/migrations/001_initial_schema.sql`** — Creates tables (`profiles`, `trackings`, `contact_submissions`), indexes, RLS policies, triggers, and enables Realtime
 2. **`supabase/migrations/002_contact_subject.sql`** — Adds `subject` column to contact submissions
+3. **`supabase/migrations/003_fix_rls_recursion.sql`** — Fixes infinite recursion in admin RLS policies using a `SECURITY DEFINER` helper function
 
 These migrations set up:
 - **Row-Level Security (RLS)** on all tables — users can only access their own data, admins can read everything

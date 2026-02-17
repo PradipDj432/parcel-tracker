@@ -56,9 +56,9 @@ test.describe("Admin Panel", () => {
 
     await page.click("button:has-text('Users')");
 
-    // Should show the admin user email
+    // Use main content area to avoid matching the navbar email
     await expect(
-      page.locator(`text=${TEST_ADMIN.email}`)
+      page.locator("main").locator(`text=${TEST_ADMIN.email}`).first()
     ).toBeVisible();
   });
 });
