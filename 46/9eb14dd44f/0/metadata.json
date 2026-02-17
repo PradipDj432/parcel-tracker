@@ -1,0 +1,34 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "469eb14dd44f",
+  "session_id": "fa20aaae-33f6-4ee1-abc9-71c9ee15260c",
+  "strategy": "manual-commit",
+  "created_at": "2026-02-17T10:26:01.362863127Z",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/components/auth-provider.tsx",
+    "src/lib/supabase/middleware.ts"
+  ],
+  "agent": "Claude Code",
+  "transcript_identifier_at_start": "5261a80f-f81e-452e-bee9-5a12caec77a1",
+  "checkpoint_transcript_start": 1439,
+  "transcript_lines_at_start": 1439,
+  "token_usage": {
+    "input_tokens": 9,
+    "cache_creation_tokens": 17305,
+    "cache_read_tokens": 506198,
+    "output_tokens": 14304,
+    "api_call_count": 7
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-02-17T10:26:00.474497558Z",
+    "agent_lines": 73,
+    "human_added": 9,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 82,
+    "agent_percentage": 89.02439024390245
+  },
+  "transcript_path": ".claude/projects/-home-dhitech-projects-parcel-tracker/fa20aaae-33f6-4ee1-abc9-71c9ee15260c.jsonl"
+}

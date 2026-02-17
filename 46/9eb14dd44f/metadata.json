@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "469eb14dd44f",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/components/auth-provider.tsx",
+    "src/lib/supabase/middleware.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/46/9eb14dd44f/0/metadata.json",
+      "transcript": "/46/9eb14dd44f/0/full.jsonl",
+      "context": "/46/9eb14dd44f/0/context.md",
+      "content_hash": "/46/9eb14dd44f/0/content_hash.txt",
+      "prompt": "/46/9eb14dd44f/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 9,
+    "cache_creation_tokens": 17305,
+    "cache_read_tokens": 506198,
+    "output_tokens": 14304,
+    "api_call_count": 7
+  }
+}
