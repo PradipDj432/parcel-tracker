@@ -34,24 +34,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const supabase = createClient();
 
   useEffect(() => {
-    // Get initial session
-    const getSession = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user);
-      if (user) {
-        await fetchProfile(user.id);
-      }
-      setIsLoading(false);
-    };
-
-    getSession();
-
-    // Listen for auth changes
+    // Use onAuthStateChange as the single source of truth.
+    // The INITIAL_SESSION event fires on mount with the cached session,
+    // and TOKEN_REFRESHED fires automatically when the JWT is refreshed.
+    // This avoids the race condition where getUser() (an API call) could
+    // return null for an expired JWT and overwrite a valid cached session.
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       const currentUser = session?.user ?? null;
       setUser(currentUser);
       if (currentUser) {
@@ -65,14 +55,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = async (userId: string, retries = 2) => {
     const { data, error } = await supabase
       .from("profiles")
       .select("*")
       .eq("id", userId)
       .single();
     if (error || !data) {
-      console.error("Failed to fetch profile:", error?.message);
+      if (retries > 0) {
+        // Retry after a short delay (profile may not be created yet after signup)
+        await new Promise((r) => setTimeout(r, 500));
+        return fetchProfile(userId, retries - 1);
+      }
       setProfile(null);
       return;
     }

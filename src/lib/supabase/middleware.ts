@@ -29,8 +29,35 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // Refreshing the auth token
-  await supabase.auth.getUser();
+  // Refreshing the auth token — this also refreshes expired JWTs
+  // and writes updated cookies to the response
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Redirect unauthenticated users away from protected routes
+  const protectedPaths = ["/dashboard", "/history", "/import", "/admin", "/profile"];
+  const isProtected = protectedPaths.some((p) =>
+    request.nextUrl.pathname.startsWith(p)
+  );
+
+  if (isProtected && !user) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    return NextResponse.redirect(url);
+  }
+
+  // Redirect authenticated users away from auth pages
+  const authPaths = ["/login", "/signup"];
+  const isAuthPage = authPaths.some((p) =>
+    request.nextUrl.pathname.startsWith(p)
+  );
+
+  if (isAuthPage && user) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/dashboard";
+    return NextResponse.redirect(url);
+  }
 
   return supabaseResponse;
 }
