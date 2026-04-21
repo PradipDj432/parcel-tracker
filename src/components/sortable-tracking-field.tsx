@@ -84,6 +84,7 @@ export function SortableTrackingField({
 
         {/* Courier dropdown */}
         <select
+          data-testid="courier-select"
           value={field.courierCode}
           onChange={(e) => {
             const selected = field.detectedCouriers.find(

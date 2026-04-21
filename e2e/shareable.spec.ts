@@ -13,7 +13,14 @@ test.describe("Shareable Tracking Pages", () => {
 
     await page.goto("/history");
     await expect(page.locator("h1")).toContainText("History");
-    await page.waitForTimeout(3000);
+    // Wait for history page content to settle
+    await expect(
+      page
+        .locator(".font-mono")
+        .first()
+        .or(page.locator("text=No trackings yet"))
+        .first()
+    ).toBeVisible({ timeout: 10_000 });
 
     // Check if there are trackings with toggle buttons
     const hasTrackings = await page
@@ -39,7 +46,14 @@ test.describe("Shareable Tracking Pages", () => {
     // Go directly to history page (admin already has trackings in DB)
     await page.goto("/history");
     await expect(page.locator("h1")).toContainText("History");
-    await page.waitForTimeout(3000);
+    // Wait for history page content to settle
+    await expect(
+      page
+        .locator(".font-mono")
+        .first()
+        .or(page.locator("text=No trackings yet"))
+        .first()
+    ).toBeVisible({ timeout: 10_000 });
 
     const hasTrackings = await page
       .locator(".font-mono")

@@ -4,7 +4,7 @@ import { useAuth } from "@/components/auth-provider";
 import { User, ShieldCheck, Mail, Calendar, Loader2 } from "lucide-react";
 
 export default function ProfilePage() {
-  const { user, profile, isAdmin, isLoading } = useAuth();
+  const { user, profile, profileError, isAdminUi, isLoading } = useAuth();
 
   if (isLoading) {
     return (
@@ -16,8 +16,24 @@ export default function ProfilePage() {
 
   if (!user || !profile) {
     return (
-      <div className="mx-auto max-w-lg px-4 py-16 text-center">
+      <div className="mx-auto max-w-lg px-4 py-16 text-center space-y-2">
         <p className="text-sm text-zinc-500">Unable to load profile.</p>
+        {profileError && (
+          <p className="font-mono text-xs text-red-500 break-all">
+            {profileError}
+          </p>
+        )}
+        {!user && (
+          <p className="text-xs text-zinc-400">
+            No active session detected on the client.
+          </p>
+        )}
+        <button
+          onClick={() => window.location.reload()}
+          className="text-xs text-zinc-600 underline hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"
+        >
+          Retry
+        </button>
       </div>
     );
   }
@@ -40,7 +56,7 @@ export default function ProfilePage() {
           <div>
             <p className="font-medium">{profile.email}</p>
             <div className="mt-1 flex items-center gap-1.5">
-              {isAdmin ? (
+              {isAdminUi ? (
                 <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900 dark:text-amber-300">
                   <ShieldCheck className="h-3 w-3" />
                   Admin

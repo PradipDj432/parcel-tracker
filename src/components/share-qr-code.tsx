@@ -1,14 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { Copy, Check } from "lucide-react";
 
 export function ShareQrCode({ slug }: { slug: string }) {
   const [copied, setCopied] = useState(false);
-  const url = `${typeof window !== "undefined" ? window.location.origin : ""}/track/${slug}`;
+  const [url, setUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    setUrl(`${window.location.origin}/track/${slug}`);
+  }, [slug]);
 
   const copyLink = async () => {
+    if (!url) return;
     await navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -16,8 +21,12 @@ export function ShareQrCode({ slug }: { slug: string }) {
 
   return (
     <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
-      <div className="rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-white">
-        <QRCodeSVG value={url} size={120} />
+      <div className="flex h-[144px] w-[144px] shrink-0 items-center justify-center rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-white">
+        {url ? (
+          <QRCodeSVG value={url} size={120} />
+        ) : (
+          <div className="h-[120px] w-[120px] animate-pulse rounded bg-zinc-100" />
+        )}
       </div>
       <div className="flex-1 text-center sm:text-left">
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
@@ -26,12 +35,13 @@ export function ShareQrCode({ slug }: { slug: string }) {
         <div className="mt-2 flex items-center gap-2">
           <input
             readOnly
-            value={url}
+            value={url ?? ""}
             className="min-w-0 flex-1 rounded-md border border-zinc-200 bg-zinc-50 px-3 py-1.5 font-mono text-xs dark:border-zinc-700 dark:bg-zinc-900"
           />
           <button
             onClick={copyLink}
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+            disabled={!url}
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-zinc-800 disabled:opacity-50 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
           >
             {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
             {copied ? "Copied!" : "Copy"}

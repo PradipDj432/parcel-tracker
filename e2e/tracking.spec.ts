@@ -20,11 +20,11 @@ test.describe("Guest Tracking", () => {
       "MOCK123456789"
     );
 
-    // Wait for courier detection to complete (mocked)
-    await page.waitForTimeout(1000);
-
-    // Select detected courier
-    const courierSelect = page.locator("select").first();
+    // Wait for courier detection to complete (mocked) — poll for UPS option
+    const courierSelect = page.getByTestId("courier-select");
+    await expect(courierSelect.locator('option[value="ups"]')).toHaveCount(1, {
+      timeout: 5000,
+    });
     await courierSelect.selectOption("ups");
 
     // Click Track button
@@ -81,8 +81,10 @@ test.describe("Logged-in Tracking", () => {
       "MOCK123456789"
     );
 
-    await page.waitForTimeout(1000);
-    const courierSelect = page.locator("select").first();
+    const courierSelect = page.getByTestId("courier-select").first();
+    await expect(courierSelect.locator('option[value="ups"]')).toHaveCount(1, {
+      timeout: 5000,
+    });
     await courierSelect.selectOption("ups");
 
     await page.click('button:has-text("Track")');
@@ -99,15 +101,20 @@ test.describe("Logged-in Tracking", () => {
     await page.goto("/history");
     await expect(page.locator("h1")).toContainText("History");
 
-    // Wait for suspense/skeleton to resolve
-    await page.waitForTimeout(3000);
+    // Wait for either a tracking row, the empty state, or the tip to appear
+    await expect(
+      page
+        .locator(".font-mono")
+        .first()
+        .or(page.locator("text=No trackings yet"))
+        .or(page.locator("text=Tip:"))
+        .first()
+    ).toBeVisible({ timeout: 10_000 });
 
-    // Should either show a list of trackings or the empty state
     const hasTrackings = await page.locator(".font-mono").first().isVisible().catch(() => false);
     const hasEmpty = await page.locator("text=No trackings yet").isVisible().catch(() => false);
     const hasTip = await page.locator("text=Tip:").isVisible().catch(() => false);
 
-    // If the tip is visible, trackings are loading/loaded
     expect(hasTrackings || hasEmpty || hasTip).toBeTruthy();
   });
 });

@@ -26,7 +26,7 @@ const navLinkActive =
   "flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-white";
 
 export function Navbar() {
-  const { user, profile, isAdmin, isLoading, signOut } = useAuth();
+  const { user, profile, isAdminUi, isLoading, signOut } = useAuth();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -68,7 +68,7 @@ export function Navbar() {
               </Link>
             ))}
 
-          {!isLoading && user && isAdmin && (
+          {!isLoading && user && isAdminUi && (
             <Link
               href="/admin"
               className={
@@ -163,7 +163,7 @@ export function Navbar() {
                 </Link>
               ))}
 
-            {!isLoading && user && isAdmin && (
+            {!isLoading && user && isAdminUi && (
               <Link
                 href="/admin"
                 onClick={() => setMobileOpen(false)}

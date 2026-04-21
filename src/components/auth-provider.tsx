@@ -14,7 +14,8 @@ interface Profile {
 interface AuthContextType {
   user: User | null;
   profile: Profile | null;
-  isAdmin: boolean;
+  profileError: string | null;
+  isAdminUi: boolean;
   isLoading: boolean;
   signOut: () => Promise<void>;
 }
@@ -22,31 +23,66 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   profile: null,
-  isAdmin: false,
+  profileError: null,
+  isAdminUi: false,
   isLoading: true,
   signOut: async () => {},
 });
 
+const withTimeout = <T,>(p: Promise<T>, ms: number, label: string): Promise<T> =>
+  Promise.race([
+    p,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms)
+    ),
+  ]);
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [profileError, setProfileError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const supabaseRef = useRef(createClient());
   const profileCache = useRef<string | null>(null);
 
+  // One-time init log — helps diagnose missing env vars / wrong URL
+  const initLoggedRef = useRef(false);
+  if (!initLoggedRef.current) {
+    initLoggedRef.current = true;
+    console.log("[auth] client init", {
+      hasUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+      urlPrefix: process.env.NEXT_PUBLIC_SUPABASE_URL?.slice(0, 40),
+      hasKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      keyLen: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.length,
+    });
+  }
+
   const fetchProfile = useCallback(async (userId: string, retries = 3): Promise<void> => {
     if (profileCache.current === userId) return;
 
-    // Ensure we have a valid (non-expired) token before querying.
-    // getUser() forces a token refresh if the access token is expired.
-    const { data: { user: validUser } } = await supabaseRef.current.auth.getUser();
-    if (!validUser) return;
+    console.log("[auth] fetchProfile start", { userId, retriesLeft: retries });
 
-    const { data, error } = await supabaseRef.current
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
+    let data: Profile | null = null;
+    let error: { code?: string; message?: string } | null = null;
+    try {
+      const queryPromise = (async () =>
+        supabaseRef.current
+          .from("profiles")
+          .select("*")
+          .eq("id", userId)
+          .single())();
+      const result = await withTimeout(queryPromise, 6000, "profiles query");
+      data = result.data as Profile | null;
+      error = result.error;
+    } catch (e) {
+      error = { message: e instanceof Error ? e.message : String(e) };
+    }
+
+    console.log("[auth] profiles query result", {
+      hasData: !!data,
+      errorCode: error?.code,
+      errorMessage: error?.message,
+    });
 
     if (error || !data) {
       if (retries > 0) {
@@ -54,11 +90,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return fetchProfile(userId, retries - 1);
       }
       setProfile(null);
+      setProfileError(error?.message ?? "Profile row not found");
       profileCache.current = null;
+      console.warn("[auth] fetchProfile failed after retries", error);
       return;
     }
     setProfile(data);
+    setProfileError(null);
     profileCache.current = userId;
+    console.log("[auth] profile loaded", { role: data.role, email: data.email });
   }, []);
 
   useEffect(() => {
@@ -67,12 +107,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("[auth] onAuthStateChange", { event, hasSession: !!session, userId: session?.user?.id });
       if (!mounted) return;
 
       if (event === "SIGNED_OUT") {
         setUser(null);
         setProfile(null);
+        setProfileError(null);
         profileCache.current = null;
         setIsLoading(false);
         return;
@@ -82,18 +124,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (currentUser) {
         setUser(currentUser);
-        // For TOKEN_REFRESHED, allow re-fetching profile if it was previously null
-        if (event === "TOKEN_REFRESHED") {
-          profileCache.current = null;
-        }
-        await fetchProfile(currentUser.id);
-      } else if (event === "INITIAL_SESSION") {
+        // Defer the profile fetch — Supabase's GoTrue holds a lock during
+        // initial auth recovery, and awaiting another Supabase call here
+        // causes a deadlock. setTimeout(..., 0) lets this callback return
+        // first so the lock releases before we query.
+        setTimeout(() => {
+          if (!mounted) return;
+          if (event === "TOKEN_REFRESHED") {
+            profileCache.current = null;
+          }
+          fetchProfile(currentUser.id).finally(() => {
+            if (mounted) setIsLoading(false);
+          });
+        }, 0);
+      } else {
+        // No session (e.g. INITIAL_SESSION with no session)
         setUser(null);
         setProfile(null);
+        setProfileError(null);
         profileCache.current = null;
+        setIsLoading(false);
       }
-
-      if (mounted) setIsLoading(false);
     });
 
     const timeout = setTimeout(() => {
@@ -108,14 +159,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [fetchProfile]);
 
   const signOut = useCallback(async () => {
-    // Sign out from Supabase client (clears tokens + fires SIGNED_OUT event)
-    await supabaseRef.current.auth.signOut();
-
-    // Clear server-side cookies via API
-    await fetch("/api/auth/signout", { method: "POST" });
-
-    // Hard redirect to force full page reload — clears all cached state,
-    // Next.js router cache, and ensures fresh server-side render
+    console.log("[auth] signOut start");
+    try {
+      await withTimeout(
+        supabaseRef.current.auth.signOut({ scope: "local" }),
+        3000,
+        "auth.signOut(local)"
+      );
+      console.log("[auth] signOut: local session cleared");
+    } catch (e) {
+      console.warn("[auth] signOut: client signOut failed, continuing", e);
+    }
+    try {
+      await withTimeout(
+        fetch("/api/auth/signout", { method: "POST" }),
+        3000,
+        "/api/auth/signout"
+      );
+      console.log("[auth] signOut: server cookies cleared");
+    } catch (e) {
+      console.warn("[auth] signOut: server call failed, continuing", e);
+    }
+    console.log("[auth] signOut: redirecting to /");
+    // Hard redirect — clears Next router cache and forces fresh SSR
     window.location.href = "/";
   }, []);
 
@@ -124,7 +190,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         profile,
-        isAdmin: profile?.role === "admin",
+        profileError,
+        isAdminUi: profile?.role === "admin",
         isLoading,
         signOut,
       }}
