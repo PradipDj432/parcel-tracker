@@ -45,22 +45,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const supabaseRef = useRef(createClient());
   const profileCache = useRef<string | null>(null);
 
-  // One-time init log — helps diagnose missing env vars / wrong URL
-  const initLoggedRef = useRef(false);
-  if (!initLoggedRef.current) {
-    initLoggedRef.current = true;
-    console.log("[auth] client init", {
-      hasUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
-      urlPrefix: process.env.NEXT_PUBLIC_SUPABASE_URL?.slice(0, 40),
-      hasKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      keyLen: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.length,
-    });
-  }
-
   const fetchProfile = useCallback(async (userId: string, retries = 3): Promise<void> => {
     if (profileCache.current === userId) return;
-
-    console.log("[auth] fetchProfile start", { userId, retriesLeft: retries });
 
     let data: Profile | null = null;
     let error: { code?: string; message?: string } | null = null;
@@ -78,12 +64,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       error = { message: e instanceof Error ? e.message : String(e) };
     }
 
-    console.log("[auth] profiles query result", {
-      hasData: !!data,
-      errorCode: error?.code,
-      errorMessage: error?.message,
-    });
-
     if (error || !data) {
       if (retries > 0) {
         await new Promise((r) => setTimeout(r, 300));
@@ -98,7 +78,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setProfile(data);
     setProfileError(null);
     profileCache.current = userId;
-    console.log("[auth] profile loaded", { role: data.role, email: data.email });
   }, []);
 
   useEffect(() => {
@@ -108,7 +87,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("[auth] onAuthStateChange", { event, hasSession: !!session, userId: session?.user?.id });
       if (!mounted) return;
 
       if (event === "SIGNED_OUT") {
@@ -159,14 +137,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [fetchProfile]);
 
   const signOut = useCallback(async () => {
-    console.log("[auth] signOut start");
     try {
       await withTimeout(
         supabaseRef.current.auth.signOut({ scope: "local" }),
         3000,
         "auth.signOut(local)"
       );
-      console.log("[auth] signOut: local session cleared");
     } catch (e) {
       console.warn("[auth] signOut: client signOut failed, continuing", e);
     }
@@ -176,11 +152,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         3000,
         "/api/auth/signout"
       );
-      console.log("[auth] signOut: server cookies cleared");
     } catch (e) {
       console.warn("[auth] signOut: server call failed, continuing", e);
     }
-    console.log("[auth] signOut: redirecting to /");
     // Hard redirect — clears Next router cache and forces fresh SSR
     window.location.href = "/";
   }, []);

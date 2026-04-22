@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { Package } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
 
-export function Footer() {
+export async function Footer() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   return (
     <footer className="border-t border-zinc-200 dark:border-zinc-800">
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 py-8 text-center sm:flex-row sm:justify-between sm:text-left">
@@ -22,12 +28,21 @@ export function Footer() {
           >
             Contact
           </Link>
-          <Link
-            href="/login"
-            className="transition-colors hover:text-zinc-700 dark:hover:text-zinc-200"
-          >
-            Sign In
-          </Link>
+          {user ? (
+            <Link
+              href="/dashboard"
+              className="transition-colors hover:text-zinc-700 dark:hover:text-zinc-200"
+            >
+              Dashboard
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className="transition-colors hover:text-zinc-700 dark:hover:text-zinc-200"
+            >
+              Sign In
+            </Link>
+          )}
         </div>
       </div>
     </footer>

@@ -4,17 +4,33 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { toast } from "sonner";
-import { LogIn, Loader2 } from "lucide-react";
+import { LogIn, Loader2, AlertCircle } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const supabase = createClient();
+
+  const friendlyError = (raw: string): string => {
+    const msg = raw.toLowerCase();
+    if (msg.includes("email not confirmed")) {
+      return "Please confirm your email before signing in. Check your inbox for the confirmation link.";
+    }
+    if (msg.includes("invalid login")) {
+      return "Incorrect email or password.";
+    }
+    if (msg.includes("rate limit") || msg.includes("too many")) {
+      return "Too many attempts. Please wait a minute and try again.";
+    }
+    return raw;
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMsg(null);
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -22,7 +38,9 @@ export default function LoginPage() {
     });
 
     if (error) {
-      toast.error(error.message);
+      const message = friendlyError(error.message);
+      setErrorMsg(message);
+      toast.error(message);
       setLoading(false);
       return;
     }
@@ -41,6 +59,16 @@ export default function LoginPage() {
             Sign in to your account
           </p>
         </div>
+
+        {errorMsg && (
+          <div
+            role="alert"
+            className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300"
+          >
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>{errorMsg}</span>
+          </div>
+        )}
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
