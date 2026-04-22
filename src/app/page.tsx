@@ -8,7 +8,9 @@ import {
   Shield,
   Zap,
   Clock,
+  LayoutDashboard,
 } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
 
 const features = [
   {
@@ -49,7 +51,13 @@ const features = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const isSignedIn = !!user;
+
   return (
     <div className="flex flex-col">
       {/* Hero */}
@@ -74,20 +82,41 @@ export default function Home() {
           </div>
 
           <div className="mt-8 flex animate-slide-up flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link
-              href="/track"
-              className="inline-flex items-center gap-2 rounded-full bg-zinc-900 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-zinc-900/20 transition-all hover:bg-zinc-800 hover:shadow-xl dark:bg-white dark:text-zinc-900 dark:shadow-white/10 dark:hover:bg-zinc-100"
-            >
-              <Search className="h-4 w-4" />
-              Start Tracking
-            </Link>
-            <Link
-              href="/signup"
-              className="inline-flex items-center gap-2 rounded-full border border-zinc-300 px-6 py-3 text-sm font-medium transition-all hover:border-zinc-400 hover:bg-zinc-50 dark:border-zinc-700 dark:hover:border-zinc-600 dark:hover:bg-zinc-900"
-            >
-              Create Account
-              <Zap className="h-4 w-4" />
-            </Link>
+            {isSignedIn ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  className="inline-flex items-center gap-2 rounded-full bg-zinc-900 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-zinc-900/20 transition-all hover:bg-zinc-800 hover:shadow-xl dark:bg-white dark:text-zinc-900 dark:shadow-white/10 dark:hover:bg-zinc-100"
+                >
+                  <LayoutDashboard className="h-4 w-4" />
+                  Go to Dashboard
+                </Link>
+                <Link
+                  href="/track"
+                  className="inline-flex items-center gap-2 rounded-full border border-zinc-300 px-6 py-3 text-sm font-medium transition-all hover:border-zinc-400 hover:bg-zinc-50 dark:border-zinc-700 dark:hover:border-zinc-600 dark:hover:bg-zinc-900"
+                >
+                  <Search className="h-4 w-4" />
+                  Track a Parcel
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/track"
+                  className="inline-flex items-center gap-2 rounded-full bg-zinc-900 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-zinc-900/20 transition-all hover:bg-zinc-800 hover:shadow-xl dark:bg-white dark:text-zinc-900 dark:shadow-white/10 dark:hover:bg-zinc-100"
+                >
+                  <Search className="h-4 w-4" />
+                  Start Tracking
+                </Link>
+                <Link
+                  href="/signup"
+                  className="inline-flex items-center gap-2 rounded-full border border-zinc-300 px-6 py-3 text-sm font-medium transition-all hover:border-zinc-400 hover:bg-zinc-50 dark:border-zinc-700 dark:hover:border-zinc-600 dark:hover:bg-zinc-900"
+                >
+                  Create Account
+                  <Zap className="h-4 w-4" />
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </section>
@@ -128,25 +157,47 @@ export default function Home() {
       <section className="border-t border-zinc-200 dark:border-zinc-800">
         <div className="mx-auto max-w-5xl px-4 py-16 text-center">
           <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
-            Ready to track your parcels?
+            {isSignedIn
+              ? "Pick up where you left off"
+              : "Ready to track your parcels?"}
           </h2>
           <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-            No account required for basic tracking. Sign up to unlock all
-            features.
+            {isSignedIn
+              ? "Jump back into your dashboard or track a new parcel."
+              : "No account required for basic tracking. Sign up to unlock all features."}
           </p>
           <div className="mt-6 flex justify-center gap-3">
-            <Link
-              href="/track"
-              className="rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
-            >
-              Track Now
-            </Link>
-            <Link
-              href="/login"
-              className="rounded-full border border-zinc-300 px-5 py-2.5 text-sm font-medium transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-900"
-            >
-              Sign In
-            </Link>
+            {isSignedIn ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  className="rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
+                >
+                  Open Dashboard
+                </Link>
+                <Link
+                  href="/history"
+                  className="rounded-full border border-zinc-300 px-5 py-2.5 text-sm font-medium transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-900"
+                >
+                  View History
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/track"
+                  className="rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
+                >
+                  Track Now
+                </Link>
+                <Link
+                  href="/login"
+                  className="rounded-full border border-zinc-300 px-5 py-2.5 text-sm font-medium transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-900"
+                >
+                  Sign In
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </section>

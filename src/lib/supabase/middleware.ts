@@ -6,6 +6,10 @@ export async function updateSession(request: NextRequest) {
     request,
   });
 
+  // Track all cookies that Supabase sets during token refresh
+  // so we can copy them to redirect responses
+  const refreshedCookies: { name: string; value: string; options: Record<string, unknown> }[] = [];
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -15,6 +19,10 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
+          // Save cookies for potential redirect responses
+          refreshedCookies.length = 0;
+          refreshedCookies.push(...cookiesToSet);
+
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           );
@@ -30,10 +38,22 @@ export async function updateSession(request: NextRequest) {
   );
 
   // Refreshing the auth token — this also refreshes expired JWTs
-  // and writes updated cookies to the response
+  // and writes updated cookies to the response via setAll callback
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  // Helper: create a redirect response that carries the refreshed auth cookies
+  const redirectWith = (pathname: string) => {
+    const url = request.nextUrl.clone();
+    url.pathname = pathname;
+    const redirectResponse = NextResponse.redirect(url);
+    // Copy refreshed auth cookies so the browser gets the new tokens
+    for (const { name, value, options } of refreshedCookies) {
+      redirectResponse.cookies.set(name, value, options);
+    }
+    return redirectResponse;
+  };
 
   // Redirect unauthenticated users away from protected routes
   const protectedPaths = ["/dashboard", "/history", "/import", "/admin", "/profile"];
@@ -42,9 +62,7 @@ export async function updateSession(request: NextRequest) {
   );
 
   if (isProtected && !user) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
+    return redirectWith("/login");
   }
 
   // Redirect authenticated users away from auth pages
@@ -54,9 +72,7 @@ export async function updateSession(request: NextRequest) {
   );
 
   if (isAuthPage && user) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
-    return NextResponse.redirect(url);
+    return redirectWith("/dashboard");
   }
 
   return supabaseResponse;

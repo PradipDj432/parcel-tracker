@@ -1,8 +1,8 @@
 import { z } from "zod/v4";
 
-export const trackingNumberSchema = z.object({
+export const trackRequestSchema = z.object({
   trackingNumber: z.string().min(1, "Tracking number is required"),
-  courier: z.string().optional(),
+  courierCode: z.string().min(1, "Courier code is required"),
 });
 
 export const contactFormSchema = z.object({
@@ -14,6 +14,6 @@ export const contactFormSchema = z.object({
 
 export const csvRowSchema = z.object({
   trackingNumber: z.string().min(1),
-  courier: z.string().optional(),
+  courierCode: z.string().min(1),
   label: z.string().optional(),
 });

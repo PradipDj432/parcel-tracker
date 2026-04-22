@@ -3,6 +3,7 @@ import { nanoid } from "nanoid";
 import { trackParcel } from "@/lib/trackingmore";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
+import { csvRowSchema } from "@/lib/validators";
 
 // Process a single tracking item from CSV import
 export async function POST(request: NextRequest) {
@@ -16,15 +17,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json();
-    const { trackingNumber, courierCode, label } = body;
-
-    if (!trackingNumber || !courierCode) {
+    const body = await request.json().catch(() => null);
+    const parsed = csvRowSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Tracking number and courier code are required" },
+        {
+          success: false,
+          error: parsed.error.issues[0]?.message ?? "Invalid request",
+        },
         { status: 400 }
       );
     }
+    const { trackingNumber, courierCode, label } = parsed.data;
 
     // Call TrackingMore API
     const result = await trackParcel(trackingNumber, courierCode);

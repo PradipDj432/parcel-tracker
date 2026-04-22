@@ -121,7 +121,13 @@ export function HistoryList({ initialTrackings }: HistoryListProps) {
                 : t
             )
           );
-          toast.success(`Updated ${tracking.tracking_number}`);
+          if (json.saveError) {
+            toast.error(
+              `Refreshed ${tracking.tracking_number}, but failed to save update.`
+            );
+          } else {
+            toast.success(`Updated ${tracking.tracking_number}`);
+          }
         } else {
           toast.error(json.error || "Failed to refresh");
         }

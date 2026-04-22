@@ -18,27 +18,38 @@ export async function GET() {
 
   const all = trackings || [];
   const now = new Date();
-  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const validDate = (s: string | null | undefined): number | null => {
+    if (!s) return null;
+    const t = new Date(s).getTime();
+    return Number.isNaN(t) ? null : t;
+  };
 
   // Summary stats
   const total = all.length;
   const inTransit = all.filter((t) => t.status === "transit").length;
-  const deliveredThisMonth = all.filter(
-    (t) =>
-      t.status === "delivered" && new Date(t.updated_at) >= startOfMonth
-  ).length;
+  const deliveredThisMonth = all.filter((t) => {
+    if (t.status !== "delivered") return false;
+    const updated = validDate(t.updated_at);
+    return updated !== null && updated >= startOfMonth.getTime();
+  }).length;
 
   // Average delivery time (delivered parcels with both created_at and updated_at)
-  const deliveredParcels = all.filter((t) => t.status === "delivered");
+  const deliveredWithDates = all.filter(
+    (t) =>
+      t.status === "delivered" &&
+      validDate(t.created_at) !== null &&
+      validDate(t.updated_at) !== null
+  );
   let avgDeliveryDays = 0;
-  if (deliveredParcels.length > 0) {
-    const totalDays = deliveredParcels.reduce((sum, t) => {
-      const created = new Date(t.created_at).getTime();
-      const updated = new Date(t.updated_at).getTime();
+  if (deliveredWithDates.length > 0) {
+    const totalDays = deliveredWithDates.reduce((sum, t) => {
+      const created = validDate(t.created_at)!;
+      const updated = validDate(t.updated_at)!;
       return sum + (updated - created) / (1000 * 60 * 60 * 24);
     }, 0);
-    avgDeliveryDays = Math.round((totalDays / deliveredParcels.length) * 10) / 10;
+    avgDeliveryDays = Math.round((totalDays / deliveredWithDates.length) * 10) / 10;
   }
 
   // Tracking volume per day (last 30 days)
@@ -49,7 +60,9 @@ export async function GET() {
     volumeMap[key] = 0;
   }
   for (const t of all) {
-    const key = new Date(t.created_at).toISOString().split("T")[0];
+    const created = validDate(t.created_at);
+    if (created === null) continue;
+    const key = new Date(created).toISOString().split("T")[0];
     if (key in volumeMap) {
       volumeMap[key]++;
     }
@@ -88,10 +101,7 @@ export async function GET() {
   // In-transit parcels
   const inTransitParcels = all
     .filter((t) => t.status === "transit")
-    .sort(
-      (a, b) =>
-        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-    );
+    .sort((a, b) => (validDate(b.updated_at) ?? 0) - (validDate(a.updated_at) ?? 0));
 
   return NextResponse.json({
     summary: {

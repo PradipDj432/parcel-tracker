@@ -3,18 +3,19 @@ import { nanoid } from "nanoid";
 import { trackParcel } from "@/lib/trackingmore";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
+import { trackRequestSchema } from "@/lib/validators";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { trackingNumber, courierCode } = body;
-
-    if (!trackingNumber || !courierCode) {
+    const body = await request.json().catch(() => null);
+    const parsed = trackRequestSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Tracking number and courier code are required" },
+        { error: parsed.error.issues[0]?.message ?? "Invalid request" },
         { status: 400 }
       );
     }
+    const { trackingNumber, courierCode } = parsed.data;
 
     // Call TrackingMore API (secrets stay server-side)
     const result = await trackParcel(trackingNumber, courierCode);
@@ -87,8 +88,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ data: result, saved, saveError });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to track parcel";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("/api/track failed:", error);
+    return NextResponse.json(
+      { error: "Failed to track parcel" },
+      { status: 500 }
+    );
   }
 }

@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef } from "react";
 import Papa from "papaparse";
+import { toast } from "sonner";
 
 type Step = "upload" | "review" | "processing" | "summary";
 
@@ -82,7 +83,8 @@ export function ImportWizard() {
         setRows(parsed);
         setStep("review");
       },
-      error: () => {
+      error: (err) => {
+        toast.error(`Failed to parse CSV: ${err.message}`);
         setRows([]);
       },
     });

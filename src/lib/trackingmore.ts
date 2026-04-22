@@ -35,8 +35,8 @@ async function deleteTracking(
       headers,
       body: JSON.stringify([{ tracking_number: trackingNumber, courier_code: courierCode }]),
     });
-  } catch {
-    // Best-effort deletion — ignore errors
+  } catch (err) {
+    console.error("TrackingMore delete failed", { trackingNumber, courierCode, err });
   }
 }
 

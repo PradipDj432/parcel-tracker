@@ -110,8 +110,12 @@ export async function loginAs(
   await page.click('button[type="submit"]');
   // Wait for redirect to dashboard
   await page.waitForURL("**/dashboard", { timeout: 10_000 });
-  // Wait for auth state to fully load (profile fetch)
-  await page.waitForTimeout(1000);
+  // Wait for auth state to fully load — dashboard header rendering means
+  // the session + profile have been hydrated client-side.
+  await page
+    .locator("h1")
+    .first()
+    .waitFor({ state: "visible", timeout: 10_000 });
 }
 
 // Test accounts (created in Supabase)
